@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Palmeraie Dimako — Gestion Intégrée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">🌴</div>
+    <div>
+      <div class="logo-title">Palmeraie</div>
+      <div class="logo-sub">Dimako</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+      <span class="nav-icon">◈</span> Tableau de bord
+    </a>
+    <div class="nav-section">PRODUCTION</div>
+    <a class="nav-item" data-page="production" onclick="showPage('production')">
+      <span class="nav-icon">⬡</span> Zone de production
+    </a>
+    <a class="nav-item" data-page="recolte" onclick="showPage('recolte')">
+      <span class="nav-icon">◉</span> Saisir récolte
+    </a>
+    <div class="nav-section">BOUTIQUES</div>
+    <a class="nav-item" data-page="dimako" onclick="showPage('dimako')">
+      <span class="nav-icon">▣</span> Boutique Dimako
+    </a>
+    <a class="nav-item" data-page="bertoua" onclick="showPage('bertoua')">
+      <span class="nav-icon">▣</span> Boutique Bertoua
+    </a>
+    <div class="nav-section">GESTION</div>
+    <a class="nav-item" data-page="employes" onclick="showPage('employes')">
+      <span class="nav-icon">◎</span> Employés
+    </a>
+    <a class="nav-item" data-page="depenses" onclick="showPage('depenses')">
+      <span class="nav-icon">◧</span> Dépenses
+    </a>
+    <a class="nav-item" data-page="rapports" onclick="showPage('rapports')">
+      <span class="nav-icon">⊞</span> Rapports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-badge">
+      <div class="user-avatar" id="userAvatar">A</div>
+      <div>
+        <div class="user-name" id="userName">Admin</div>
+        <div class="user-role" id="userRole">Gestionnaire</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-title" id="pageTitle">Tableau de bord</div>
+    <div class="topbar-right">
+      <div class="sync-indicator" id="syncIndicator" title="Statut base de données">
+        <span class="sync-dot" id="syncDot"></span>
+        <span id="syncText">Connexion...</span>
+      </div>
+      <div class="date-badge" id="todayDate"></div>
+      <button class="btn-logout" onclick="logout()">Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- PAGES -->
+
+  <!-- ===== LOGIN ===== -->
+  <div id="page-login" class="page active login-page">
+    <div class="login-bg">
+      <div class="palm-deco">🌴</div>
+      <div class="palm-deco-2">🌿</div>
+    </div>
+    <div class="login-card">
+      <div class="login-logo">🌴</div>
+      <h1 class="login-title">Palmeraie Dimako</h1>
+      <p class="login-subtitle">Plateforme de gestion intégrée</p>
+      <div id="configBanner" class="config-banner hidden">
+        ⚙️ Clés Supabase non configurées — modifiez <strong>config.js</strong>
+      </div>
+      <div class="form-group">
+        <label>Identifiant</label>
+        <input type="text" id="loginUser" placeholder="Votre identifiant" class="form-input">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="loginPass" placeholder="••••••••" class="form-input">
+      </div>
+      <div id="loginError" class="login-error hidden">Identifiant ou mot de passe incorrect</div>
+      <button class="btn-primary full-width" onclick="doLogin()">Se connecter</button>
+      <div class="login-hint">
+        <strong>Comptes disponibles :</strong><br>
+        admin / admin123 — Gestionnaire<br>
+        odette / odette123 — Boutique Dimako<br>
+        alain / alain123 — Boutique Bertoua<br>
+        presseur / press123 — Zone de production
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div id="page-dashboard" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Tableau de bord <span class="year-badge">2026</span></h2>
+      <p class="page-desc">Vue consolidée en temps réel</p>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon">🌴</div>
+        <div class="kpi-value" id="kpi-regimes">0</div>
+        <div class="kpi-label">Régimes coupés</div>
+        <div class="kpi-sub">cette année</div>
+      </div>
+      <div class="kpi-card kpi-gold">
+        <div class="kpi-icon">🫙</div>
+        <div class="kpi-value" id="kpi-huile">0 L</div>
+        <div class="kpi-label">Huile produite</div>
+        <div class="kpi-sub">cette année</div>
+      </div>
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value" id="kpi-recettes">0</div>
+        <div class="kpi-label">Recettes totales</div>
+        <div class="kpi-sub">FCFA</div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-value" id="kpi-benefice">0</div>
+        <div class="kpi-label">Bénéfice net</div>
+        <div class="kpi-sub">FCFA</div>
+      </div>
+    </div>
+
+    <!-- Graphique mensuel -->
+    <div class="section-grid-2">
+      <div class="card">
+        <div class="card-header">
+          <h3>Production mensuelle</h3>
+          <span class="badge-green">2026</span>
+        </div>
+        <canvas id="chartProduction" height="220"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3>Recettes vs Dépenses</h3>
+          <span class="badge-gold">par mois</span>
+        </div>
+        <canvas id="chartFinances" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Dernières saisies -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3>Dernières saisies</h3>
+        <span class="badge-blue" id="dernierMois">—</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mois</th><th>Régimes</th><th>Huile (L)</th>
+              <th>Recettes Dimako</th><th>Recettes Bertoua</th><th>Solde</th>
+            </tr>
+          </thead>
+          <tbody id="dashboardTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PRODUCTION ===== -->
+  <div id="page-production" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Zone de production</h2>
+      <p class="page-desc">Données de récolte et transformation — 2026</p>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Régimes coupés</th>
+              <th>Fûts préparés</th>
+              <th>Huile obtenue (L)</th>
+              <th>Dons divers (FCFA)</th>
+              <th>Sal. presseurs (FCFA)</th>
+              <th>Autres dép. (FCFA)</th>
+              <th>Total dépenses</th>
+              <th>Rendement L/rég.</th>
+            </tr>
+          </thead>
+          <tbody id="productionTable"></tbody>
+          <tfoot>
+            <tr class="total-row" id="productionTotals"></tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SAISIE RECOLTE ===== -->
+  <div id="page-recolte" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Saisir une récolte</h2>
+      <p class="page-desc">Enregistrer les données de production du mois</p>
+    </div>
+    <div class="form-card">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>Mois <span class="req">*</span></label>
+          <select id="rec-mois" class="form-input">
+            <option value="">Sélectionner...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nombre de régimes coupés</label>
+          <input type="number" id="rec-regimes" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Nombre de fûts préparés</label>
+          <input type="number" id="rec-futs" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Quantité d'huile obtenue (litres)</label>
+          <input type="number" id="rec-huile" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Dons divers (FCFA)</label>
+          <input type="number" id="rec-dons" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Salaires presseurs (FCFA)</label>
+          <input type="number" id="rec-salaires" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Autres dépenses (FCFA)</label>
+          <input type="number" id="rec-autres" class="form-input" placeholder="0" min="0">
+        </div>
+        <div class="form-group">
+          <label>Observations</label>
+          <input type="text" id="rec-obs" class="form-input" placeholder="Remarques éventuelles">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveRecolte()">✓ Enregistrer la récolte</button>
+        <button class="btn-secondary" onclick="resetForm('recolte')">✗ Effacer</button>
+      </div>
+      <div id="recolte-msg" class="success-msg hidden"></div>
+    </div>
+  </div>
+
+  <!-- ===== BOUTIQUE DIMAKO ===== -->
+  <div id="page-dimako" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Boutique Dimako <span class="resp-badge">Ttne ODETTE</span></h2>
+      <p class="page-desc">Gestion des ventes et stocks</p>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('dimako','view')">Tableau de suivi</button>
+      <button class="tab-btn" onclick="switchTab('dimako','entry')">Saisie mensuelle</button>
+    </div>
+
+    <div id="dimako-view" class="tab-content">
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mois</th><th>Huile récupérée (L)</th><th>Huile sortie (bid.)</th>
+                <th>Huile vendue (bid.)</th><th>À recouvrir (bid.)</th>
+                <th>Stock (bid.)</th><th>Retour (bid.)</th>
+                <th>Recettes (FCFA)</th><th>Dépenses (FCFA)</th><th>Solde</th>
+              </tr>
+            </thead>
+            <tbody id="dimakoTable"></tbody>
+            <tfoot><tr class="total-row" id="dimakoTotals"></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="dimako-entry" class="tab-content hidden">
+      <div class="form-card">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Mois <span class="req">*</span></label>
+            <select id="dim-mois" class="form-input"><option value="">Sélectionner...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Huile récupérée (litres)</label>
+            <input type="number" id="dim-recup" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Huile sortie (bidons)</label>
+            <input type="number" id="dim-sortie" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Huile vendue (bidons)</label>
+            <input type="number" id="dim-vendu" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>À recouvrir (bidons)</label>
+            <input type="number" id="dim-recouvrir" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Stock (bidons)</label>
+            <input type="number" id="dim-stocks" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Retour mauvaise huile (bidons)</label>
+            <input type="number" id="dim-retour" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Recettes (FCFA)</label>
+            <input type="number" id="dim-recettes" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Dépenses (FCFA)</label>
+            <input type="number" id="dim-depenses" class="form-input" placeholder="0" min="0">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveBoutique('dimako')">✓ Enregistrer</button>
+          <button class="btn-secondary" onclick="resetForm('dimako')">✗ Effacer</button>
+        </div>
+        <div id="dimako-msg" class="success-msg hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== BOUTIQUE BERTOUA ===== -->
+  <div id="page-bertoua" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Boutique Bertoua <span class="resp-badge">Fr ALAIN</span></h2>
+      <p class="page-desc">Gestion des ventes et stocks</p>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('bertoua','view')">Tableau de suivi</button>
+      <button class="tab-btn" onclick="switchTab('bertoua','entry')">Saisie mensuelle</button>
+    </div>
+
+    <div id="bertoua-view" class="tab-content">
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Mois</th><th>Huile récupérée (L)</th><th>Huile sortie (bid.)</th>
+                <th>Huile vendue (bid.)</th><th>À recouvrir (bid.)</th>
+                <th>Stock (bid.)</th><th>Retour (bid.)</th>
+                <th>Recettes (FCFA)</th><th>Dépenses (FCFA)</th><th>Solde</th>
+              </tr>
+            </thead>
+            <tbody id="bertouaTable"></tbody>
+            <tfoot><tr class="total-row" id="bertouaTotals"></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="bertoua-entry" class="tab-content hidden">
+      <div class="form-card">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Mois <span class="req">*</span></label>
+            <select id="bert-mois" class="form-input"><option value="">Sélectionner...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Huile récupérée (litres)</label>
+            <input type="number" id="bert-recup" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Huile sortie (bidons)</label>
+            <input type="number" id="bert-sortie" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Huile vendue (bidons)</label>
+            <input type="number" id="bert-vendu" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>À recouvrir (bidons)</label>
+            <input type="number" id="bert-recouvrir" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Stock (bidons)</label>
+            <input type="number" id="bert-stocks" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Retour huile (bidons)</label>
+            <input type="number" id="bert-retour" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Recettes (FCFA)</label>
+            <input type="number" id="bert-recettes" class="form-input" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Dépenses (FCFA)</label>
+            <input type="number" id="bert-depenses" class="form-input" placeholder="0" min="0">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveBoutique('bertoua')">✓ Enregistrer</button>
+          <button class="btn-secondary" onclick="resetForm('bertoua')">✗ Effacer</button>
+        </div>
+        <div id="bertoua-msg" class="success-msg hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EMPLOYÉS ===== -->
+  <div id="page-employes" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Gestion des employés</h2>
+      <p class="page-desc">Personnel de la palmeraie</p>
+    </div>
+
+    <div class="emp-actions">
+      <button class="btn-primary" onclick="openModal('addEmployee')">+ Ajouter un employé</button>
+    </div>
+
+    <div class="emp-grid" id="employeesGrid"></div>
+
+    <!-- Modal ajout employé -->
+    <div id="modal-addEmployee" class="modal hidden">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3>Nouvel employé</h3>
+          <button onclick="closeModal('addEmployee')">✕</button>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Nom complet <span class="req">*</span></label>
+            <input type="text" id="emp-nom" class="form-input" placeholder="Prénom Nom">
+          </div>
+          <div class="form-group">
+            <label>Poste <span class="req">*</span></label>
+            <select id="emp-poste" class="form-input">
+              <option value="">Choisir...</option>
+              <option>Responsable boutique Dimako</option>
+              <option>Responsable boutique Bertoua</option>
+              <option>Presseur</option>
+              <option>Coupeur de régimes</option>
+              <option>Chauffeur</option>
+              <option>Agent de sécurité</option>
+              <option>Gestionnaire</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="tel" id="emp-tel" class="form-input" placeholder="+237 6XX XXX XXX">
+          </div>
+          <div class="form-group">
+            <label>Salaire mensuel (FCFA)</label>
+            <input type="number" id="emp-salaire" class="form-input" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Date d'embauche</label>
+            <input type="date" id="emp-date" class="form-input">
+          </div>
+          <div class="form-group">
+            <label>Identifiant de connexion</label>
+            <input type="text" id="emp-login" class="form-input" placeholder="ex: odette">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveEmployee()">✓ Enregistrer</button>
+          <button class="btn-secondary" onclick="closeModal('addEmployee')">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DÉPENSES ===== -->
+  <div id="page-depenses" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Suivi des dépenses</h2>
+      <p class="page-desc">Toutes les dépenses enregistrées</p>
+    </div>
+
+    <div class="dep-top">
+      <div class="form-card compact">
+        <h3 class="form-section-title">Nouvelle dépense</h3>
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label>Mois</label>
+            <select id="dep-mois" class="form-input"><option value="">Sélectionner...</option></select>
+          </div>
+          <div class="form-group">
+            <label>Catégorie</label>
+            <select id="dep-cat" class="form-input">
+              <option value="">Choisir...</option>
+              <option>Salaires presseurs</option>
+              <option>Salaire Fr Alain</option>
+              <option>Salaire Valéré</option>
+              <option>Autres salaires</option>
+              <option>Maintenance machine</option>
+              <option>Transport</option>
+              <option>Carburant</option>
+              <option>Matériel</option>
+              <option>Divers</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Montant (FCFA)</label>
+            <input type="number" id="dep-montant" class="form-input" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <input type="text" id="dep-desc" class="form-input" placeholder="Détail de la dépense">
+          </div>
+          <div class="form-group">
+            <label>Payé par</label>
+            <input type="text" id="dep-par" class="form-input" placeholder="Nom">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="saveDepense()">+ Ajouter</button>
+        </div>
+        <div id="depense-msg" class="success-msg hidden"></div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3>Historique des dépenses</h3>
+        <select id="dep-filter" class="form-input small" onchange="filterDepenses()">
+          <option value="">Tous les mois</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Mois</th><th>Catégorie</th><th>Description</th><th>Montant</th><th>Payé par</th><th>Action</th></tr>
+          </thead>
+          <tbody id="depensesTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RAPPORTS ===== -->
+  <div id="page-rapports" class="page hidden">
+    <div class="page-header">
+      <h2 class="page-title">Rapports</h2>
+      <p class="page-desc">Synthèses et analyses</p>
+    </div>
+
+    <div class="rapport-grid">
+      <div class="card">
+        <div class="card-header">
+          <h3>Récapitulatif annuel 2026</h3>
+          <button class="btn-small" onclick="printRapport()">🖨 Imprimer</button>
+        </div>
+        <div id="rapport-annuel"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Résumé par boutique</h3>
+        </div>
+        <div id="rapport-boutiques"></div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <h3>Tableau mensuel complet</h3>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="rapport-table-complet">
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Régimes</th>
+              <th>Huile (L)</th>
+              <th>Rec. Dimako</th>
+              <th>Rec. Bertoua</th>
+              <th>Total Recettes</th>
+              <th>Total Dépenses</th>
+              <th>Solde</th>
+            </tr>
+          </thead>
+          <tbody id="rapportTable"></tbody>
+          <tfoot><tr class="total-row" id="rapportTotals"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast notifications -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
