@@ -106,6 +106,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const df = document.getElementById('dep-filter');
   if (df) { MOIS.forEach(m => { const o=document.createElement('option'); o.value=m; o.textContent=m; df.appendChild(o); }); }
 
+  document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
   initSupabase();
 
   const saved = sessionStorage.getItem('palmeraie_user');
@@ -392,6 +395,10 @@ function renderRapports() {
   const gSol=gRec-gDep;
   document.getElementById('rapportTotals').innerHTML=`<td><strong>TOTAUX 2026</strong></td><td class="num"><strong>${gR.toLocaleString('fr-FR')}</strong></td><td class="num"><strong>${gH.toLocaleString('fr-FR')}</strong></td><td class="num"><strong>${gRD.toLocaleString('fr-FR')}</strong></td><td class="num"><strong>${gRB.toLocaleString('fr-FR')}</strong></td><td class="num"><strong>${gRec.toLocaleString('fr-FR')}</strong></td><td class="num"><strong>${gDep.toLocaleString('fr-FR')}</strong></td><td class="num ${gSol>=0?'positive':'negative'}"><strong>${gSol.toLocaleString('fr-FR')} FCFA</strong></td>`;
 }
+
+function filterDepenses() { renderDepensesTable(); }
+
+function printRapport() { window.print(); }
 
 function openModal(id){document.getElementById('modal-'+id).classList.remove('hidden');}
 function closeModal(id){document.getElementById('modal-'+id).classList.add('hidden');}
