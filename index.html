@@ -20,549 +20,251 @@
   --border:     #D5CCBA;
   --white:      #FFFFFF;
   --red:        #B83232;
+  --blue:       #1A4A7A;
   --radius:     14px;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Outfit', sans-serif;
-  background: var(--cream);
-  color: var(--text);
-  min-height: 100vh;
-}
-
-/* ===== SCREEN SYSTEM ===== */
-.screen { display: none; min-height: 100vh; }
-.screen.active { display: flex; }
+/* SCREENS */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
 
 /* ===== ACCUEIL ===== */
-#screen-accueil {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--green);
-  background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(42,158,110,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(200,134,10,0.12) 0%, transparent 50%);
-  padding: 40px 20px;
-  position: relative;
-  overflow: hidden;
-}
+#screen-accueil{flex-direction:column;align-items:center;justify-content:center;
+  background:var(--green);
+  background-image:radial-gradient(ellipse at 20% 50%,rgba(42,158,110,.18) 0%,transparent 60%),
+                   radial-gradient(ellipse at 80% 20%,rgba(200,134,10,.12) 0%,transparent 50%);
+  padding:40px 20px;position:relative;overflow:hidden}
+.accueil-deco{position:absolute;font-size:14rem;opacity:.04;pointer-events:none;user-select:none}
+.deco-1{top:-40px;right:-20px;transform:rotate(20deg)}
+.deco-2{bottom:-60px;left:-30px;transform:rotate(-15deg)}
+.accueil-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;padding:48px 44px;width:100%;max-width:480px;
+  backdrop-filter:blur(10px);position:relative;z-index:1}
+.accueil-logo{text-align:center;font-size:3.5rem;margin-bottom:8px;
+  filter:drop-shadow(0 4px 16px rgba(200,134,10,.4))}
+.accueil-title{font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold-light);
+  text-align:center;font-weight:900;letter-spacing:-.02em;line-height:1.1}
+.accueil-sub{text-align:center;color:rgba(255,255,255,.45);font-size:.8rem;
+  letter-spacing:.2em;text-transform:uppercase;margin-bottom:36px;margin-top:6px}
+.form-label{display:block;font-size:.75rem;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:8px}
+.form-input-acc{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.15);
+  border-radius:10px;padding:13px 16px;font-size:1rem;font-family:'Outfit',sans-serif;
+  color:#fff;outline:none;transition:border-color .2s,background .2s}
+.form-input-acc::placeholder{color:rgba(255,255,255,.25)}
+.form-input-acc:focus{border-color:var(--gold-light);background:rgba(255,255,255,.1)}
+.form-group-acc{margin-bottom:20px}
+.zone-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px}
+.zone-btn{background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);
+  border-radius:12px;padding:16px 10px;cursor:pointer;text-align:center;
+  transition:all .2s;color:rgba(255,255,255,.6);font-family:'Outfit',sans-serif}
+.zone-btn:hover{border-color:rgba(240,200,90,.5);background:rgba(240,200,90,.08);color:var(--gold-light)}
+.zone-btn.selected{border-color:var(--gold-light);background:rgba(240,200,90,.15);color:var(--gold-light)}
+.zone-icon{font-size:1.6rem;display:block;margin-bottom:6px}
+.zone-name{font-size:.78rem;font-weight:600;line-height:1.2}
+.btn-enter{width:100%;background:linear-gradient(135deg,var(--gold) 0%,#E8A020 100%);
+  color:var(--green);border:none;border-radius:12px;padding:15px;font-size:1rem;
+  font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s;
+  box-shadow:0 4px 20px rgba(200,134,10,.35);letter-spacing:.02em}
+.btn-enter:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,134,10,.45)}
+.error-msg{background:rgba(184,50,50,.15);border:1px solid rgba(184,50,50,.4);color:#FF8080;
+  border-radius:8px;padding:10px 14px;font-size:.85rem;margin-bottom:16px;display:none}
 
-.accueil-deco {
-  position: absolute;
-  font-size: 14rem;
-  opacity: 0.04;
-  pointer-events: none;
-  user-select: none;
-}
-.deco-1 { top: -40px; right: -20px; transform: rotate(20deg); }
-.deco-2 { bottom: -60px; left: -30px; transform: rotate(-15deg); }
+/* ===== APP ===== */
+#screen-app{flex-direction:column;background:var(--cream)}
+.app-header{background:var(--green);padding:0 28px;height:64px;display:flex;
+  align-items:center;justify-content:space-between;flex-shrink:0;
+  position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:14px}
+.header-logo{font-size:1.5rem}
+.header-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold-light);font-weight:700}
+.header-zone{font-size:.72rem;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase}
+.header-user{display:flex;align-items:center;gap:10px}
+.user-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:20px;padding:5px 14px 5px 8px;display:flex;align-items:center;gap:8px}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--gold);color:var(--green);
+  font-weight:700;font-size:.85rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-name-chip{color:rgba(255,255,255,.8);font-size:.82rem;font-weight:500}
+.btn-deconnect{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.45);
+  border-radius:8px;padding:5px 12px;font-size:.78rem;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all .2s}
+.btn-deconnect:hover{border-color:var(--red);color:#FF8080}
 
-.accueil-card {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 24px;
-  padding: 48px 44px;
-  width: 100%;
-  max-width: 480px;
-  backdrop-filter: blur(10px);
-  position: relative;
-  z-index: 1;
-}
+.app-body{flex:1;padding:28px 32px 60px;max-width:960px;margin:0 auto;width:100%}
+.section-title{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--green);
+  font-weight:900;margin-bottom:6px}
+.section-desc{color:var(--muted);font-size:.88rem;margin-bottom:28px}
 
-.accueil-logo {
-  text-align: center;
-  font-size: 3.5rem;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 4px 16px rgba(200,134,10,0.4));
-}
+/* MOIS */
+.mois-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px}
+.mois-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--white);font-size:.78rem;font-weight:600;cursor:pointer;
+  color:var(--muted);transition:all .18s;font-family:'Outfit',sans-serif}
+.mois-chip:hover{border-color:var(--green-light);color:var(--green)}
+.mois-chip.selected{background:var(--green);border-color:var(--green);color:var(--gold-light)}
 
-.accueil-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  color: var(--gold-light);
-  text-align: center;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
+/* CARDS */
+.form-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);
+  box-shadow:0 2px 16px rgba(13,59,46,.06);padding:24px;margin-bottom:16px}
+.form-card-title{font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--cream-dark);
+  display:flex;align-items:center;gap:8px}
+.form-card-title span{font-size:1rem}
 
-.accueil-sub {
-  text-align: center;
-  color: rgba(255,255,255,0.45);
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin-bottom: 36px;
-  margin-top: 6px;
-}
+/* FIELDS */
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{font-size:.75rem;font-weight:600;color:var(--muted);letter-spacing:.03em}
+.field-req{color:var(--red)}
+.field-input{border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;
+  font-size:.9rem;font-family:'Outfit',sans-serif;color:var(--text);background:var(--cream);
+  outline:none;transition:border-color .18s,box-shadow .18s;width:100%}
+.field-input:focus{border-color:var(--green-light);background:var(--white);
+  box-shadow:0 0 0 3px rgba(46,158,110,.1)}
+.field-input[type="number"]{font-family:'DM Mono',monospace}
+.field-input.full{grid-column:1/-1}
+.field-textarea{resize:vertical;min-height:80px;line-height:1.6;grid-column:1/-1}
+.field-ro{background:#F0F4F0;color:var(--green-mid);font-weight:700;font-family:'DM Mono',monospace}
 
-.form-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
-  margin-bottom: 8px;
-}
+/* UNIT BADGE inline */
+.input-unit-wrap{position:relative;display:flex;align-items:center}
+.input-unit-wrap .field-input{padding-right:52px}
+.unit-badge{position:absolute;right:10px;font-size:.72rem;font-weight:700;color:var(--muted);
+  background:var(--cream-dark);padding:2px 6px;border-radius:4px;pointer-events:none;white-space:nowrap}
 
-.form-input {
-  width: 100%;
-  background: rgba(255,255,255,0.07);
-  border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: 10px;
-  padding: 13px 16px;
-  font-size: 1rem;
-  font-family: 'Outfit', sans-serif;
-  color: #fff;
-  outline: none;
-  transition: border-color 0.2s, background 0.2s;
-}
+/* FUT TYPE SELECTOR */
+.fut-type-row{display:flex;gap:8px;margin-bottom:4px}
+.fut-type-btn{flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--cream);font-size:.78rem;font-weight:600;cursor:pointer;
+  font-family:'Outfit',sans-serif;color:var(--muted);transition:all .15s;text-align:center}
+.fut-type-btn.active{background:var(--green);border-color:var(--green);color:var(--gold-light)}
 
-.form-input::placeholder { color: rgba(255,255,255,0.25); }
-.form-input:focus {
-  border-color: var(--gold-light);
-  background: rgba(255,255,255,0.1);
-}
+/* CONVERSION BADGE */
+.conv-badge{font-size:.75rem;color:var(--green-mid);background:#E8F5EE;
+  border:1px solid #B7DDC8;border-radius:6px;padding:4px 10px;font-weight:600;
+  display:inline-block;margin-top:4px}
 
-.form-group { margin-bottom: 20px; }
+/* RECAP BILAN */
+.bilan-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.bilan-card{border-radius:var(--radius);padding:14px 16px}
+.bilan-card.green{background:var(--green);color:var(--white)}
+.bilan-card.gold{background:var(--gold);color:var(--white)}
+.bilan-card.red{background:#B83232;color:var(--white)}
+.bilan-card.blue{background:var(--blue);color:var(--white)}
+.bilan-val{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:700;line-height:1.1}
+.bilan-label{font-size:.7rem;opacity:.75;margin-top:4px;font-weight:500}
 
-/* Zone selector */
-.zone-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 28px;
-}
+/* DYNAMIC ROWS (depenses / recettes) */
+.dyn-col-headers{display:grid;gap:6px;margin-bottom:4px;padding:0 2px}
+.dyn-col-hdr{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
 
-.zone-btn {
-  background: rgba(255,255,255,0.05);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  padding: 16px 10px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s;
-  color: rgba(255,255,255,0.6);
-  font-family: 'Outfit', sans-serif;
-}
+.dep-cols{grid-template-columns:1fr 150px 34px}
+.rec-cols{grid-template-columns:1fr 110px 90px 100px 34px}
 
-.zone-btn:hover {
-  border-color: rgba(240,200,90,0.5);
-  background: rgba(240,200,90,0.08);
-  color: var(--gold-light);
-}
+.dyn-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.dyn-row{display:grid;gap:6px;align-items:center;animation:fadeRow .18s ease}
+.dyn-row.dep-row{grid-template-columns:1fr 150px 34px}
+.dyn-row.rec-row{grid-template-columns:1fr 110px 90px 100px 34px}
 
-.zone-btn.selected {
-  border-color: var(--gold-light);
-  background: rgba(240,200,90,0.15);
-  color: var(--gold-light);
-}
+@keyframes fadeRow{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
 
-.zone-icon { font-size: 1.6rem; display: block; margin-bottom: 6px; }
-.zone-name { font-size: 0.78rem; font-weight: 600; line-height: 1.2; }
+.dyn-row .field-input{margin:0;padding:8px 10px;font-size:.85rem}
+.dyn-row input[type="number"]{text-align:right;font-family:'DM Mono',monospace}
 
-.btn-enter {
-  width: 100%;
-  background: linear-gradient(135deg, var(--gold) 0%, #E8A020 100%);
-  color: var(--green);
-  border: none;
-  border-radius: 12px;
-  padding: 15px;
-  font-size: 1rem;
-  font-weight: 700;
-  font-family: 'Outfit', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 20px rgba(200,134,10,0.35);
-  letter-spacing: 0.02em;
-}
+.cell-ro{background:#F0F4F0;border:1.5px solid #D5E8DA;border-radius:9px;padding:8px 10px;
+  font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;color:var(--green-mid);
+  text-align:right}
 
-.btn-enter:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(200,134,10,0.45);
-}
+.btn-rm{width:34px;height:34px;border-radius:7px;border:1.5px solid #E5D5D5;
+  background:#FDF5F5;color:#B83232;font-size:1.1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.btn-rm:hover{background:#B83232;color:#fff;border-color:#B83232}
 
-.error-msg {
-  background: rgba(184,50,50,0.15);
-  border: 1px solid rgba(184,50,50,0.4);
-  color: #FF8080;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  margin-bottom: 16px;
-  display: none;
-}
+.btn-add-row{display:flex;align-items:center;gap:7px;background:none;
+  border:1.5px dashed var(--border);border-radius:9px;padding:8px 16px;
+  color:var(--muted);font-size:.8rem;font-weight:600;font-family:'Outfit',sans-serif;
+  cursor:pointer;transition:all .18s;width:100%;margin-top:2px}
+.btn-add-row:hover{border-color:var(--green-light);color:var(--green-mid);background:rgba(46,158,110,.04)}
 
-/* ===== APP SCREEN ===== */
-#screen-app {
-  flex-direction: column;
-  background: var(--cream);
-}
+.total-bar{display:flex;justify-content:space-between;align-items:center;
+  background:var(--cream);border-radius:9px;padding:9px 14px;margin-top:10px;
+  border:1px solid var(--border)}
+.total-bar-label{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.total-bar-val{font-family:'DM Mono',monospace;font-size:1rem;font-weight:700;color:var(--green)}
 
-/* Header */
-.app-header {
-  background: var(--green);
-  padding: 0 28px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
+/* ACTION BAR */
+.action-bar{display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.btn-save{background:var(--green-mid);color:var(--white);border:none;border-radius:10px;
+  padding:12px 26px;font-size:.88rem;font-weight:600;font-family:'Outfit',sans-serif;
+  cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(26,107,74,.25)}
+.btn-save:hover{background:var(--green);transform:translateY(-1px)}
+.btn-pdf{background:var(--gold);color:var(--white);border:none;border-radius:10px;
+  padding:12px 22px;font-size:.88rem;font-weight:600;font-family:'Outfit',sans-serif;
+  cursor:pointer;transition:all .2s;box-shadow:0 2px 10px rgba(200,134,10,.25);
+  display:flex;align-items:center;gap:7px}
+.btn-pdf:hover{background:#A06E08;transform:translateY(-1px)}
+.btn-reset{background:none;border:1.5px solid var(--border);color:var(--muted);
+  border-radius:10px;padding:12px 18px;font-size:.88rem;font-weight:600;
+  font-family:'Outfit',sans-serif;cursor:pointer;transition:all .2s}
+.btn-reset:hover{border-color:var(--red);color:var(--red)}
+.saved-badge{background:#E8F5EE;color:var(--green-mid);border:1px solid #B7DDC8;
+  border-radius:8px;padding:8px 14px;font-size:.82rem;font-weight:600;display:none}
 
-.header-left { display: flex; align-items: center; gap: 14px; }
-.header-logo { font-size: 1.5rem; }
-.header-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
-  color: var(--gold-light);
-  font-weight: 700;
-}
-.header-zone {
-  font-size: 0.72rem;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--green);color:var(--gold-light);
+  padding:12px 22px;border-radius:10px;font-size:.875rem;font-weight:600;
+  box-shadow:0 8px 28px rgba(0,0,0,.2);z-index:999;display:none;
+  animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 
-.header-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.user-chip {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 20px;
-  padding: 5px 14px 5px 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.user-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--gold);
-  color: var(--green);
-  font-weight: 700;
-  font-size: 0.85rem;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-.user-name-chip {
-  color: rgba(255,255,255,0.8);
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-
-.btn-deconnect {
-  background: none;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.45);
-  border-radius: 8px;
-  padding: 5px 12px;
-  font-size: 0.78rem;
-  cursor: pointer;
-  font-family: 'Outfit', sans-serif;
-  transition: all 0.2s;
-}
-.btn-deconnect:hover { border-color: var(--red); color: #FF8080; }
-
-/* Main form area */
-.app-body {
-  flex: 1;
-  padding: 28px 32px 40px;
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-/* Section title */
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.6rem;
-  color: var(--green);
-  font-weight: 900;
-  margin-bottom: 6px;
-}
-.section-desc {
-  color: var(--muted);
-  font-size: 0.88rem;
-  margin-bottom: 28px;
-}
-
-/* Mois selector */
-.mois-bar {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 28px;
-}
-
-.mois-chip {
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--border);
-  background: var(--white);
-  font-size: 0.78rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--muted);
-  transition: all 0.18s;
-  font-family: 'Outfit', sans-serif;
-}
-
-.mois-chip:hover { border-color: var(--green-light); color: var(--green); }
-.mois-chip.selected {
-  background: var(--green);
-  border-color: var(--green);
-  color: var(--gold-light);
-}
-
-/* Form card */
-.form-card {
-  background: var(--white);
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  box-shadow: 0 2px 16px rgba(13,59,46,0.06);
-  padding: 28px;
-  margin-bottom: 20px;
-}
-
-.form-card-title {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--cream-dark);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.form-card-title span { font-size: 1rem; }
-
-.fields-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.field-group { display: flex; flex-direction: column; gap: 6px; }
-.field-label {
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--muted);
-}
-.field-req { color: var(--red); }
-
-.field-input {
-  border: 1.5px solid var(--border);
-  border-radius: 9px;
-  padding: 10px 13px;
-  font-size: 0.92rem;
-  font-family: 'Outfit', sans-serif;
-  color: var(--text);
-  background: var(--cream);
-  outline: none;
-  transition: border-color 0.18s, box-shadow 0.18s;
-  width: 100%;
-}
-
-.field-input:focus {
-  border-color: var(--green-light);
-  background: var(--white);
-  box-shadow: 0 0 0 3px rgba(46,158,110,0.1);
-}
-
-.field-input.full { grid-column: 1 / -1; }
-.field-input[type="number"] { font-family: 'DM Mono', monospace; }
-
-/* Action bar */
-.action-bar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 8px;
-}
-
-.btn-save {
-  background: var(--green-mid);
-  color: var(--white);
-  border: none;
-  border-radius: 10px;
-  padding: 12px 28px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: 'Outfit', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 10px rgba(26,107,74,0.25);
-}
-.btn-save:hover { background: var(--green); transform: translateY(-1px); }
-
-.btn-pdf {
-  background: var(--gold);
-  color: var(--white);
-  border: none;
-  border-radius: 10px;
-  padding: 12px 24px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: 'Outfit', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 10px rgba(200,134,10,0.25);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.btn-pdf:hover { background: #A06E08; transform: translateY(-1px); }
-
-.btn-reset {
-  background: none;
-  border: 1.5px solid var(--border);
-  color: var(--muted);
-  border-radius: 10px;
-  padding: 12px 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-family: 'Outfit', sans-serif;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-reset:hover { border-color: var(--red); color: var(--red); }
-
-/* Saved badge */
-.saved-badge {
-  background: #E8F5EE;
-  color: var(--green-mid);
-  border: 1px solid #B7DDC8;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  display: none;
-}
-
-/* Récapitulatif */
-.recap-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.recap-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px;
-  text-align: center;
-}
-
-.recap-val {
-  font-family: 'DM Mono', monospace;
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: var(--green);
-}
-
-.recap-label {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 28px; right: 28px;
-  background: var(--green);
-  color: var(--gold-light);
-  padding: 12px 22px;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.2);
-  z-index: 999;
-  display: none;
-  animation: slideIn 0.3s ease;
-}
-@keyframes slideIn { from { opacity:0; transform:translateX(30px); } to { opacity:1; transform:translateX(0); } }
-
-@media (max-width:600px) {
-  .fields-grid { grid-template-columns: 1fr; }
-  .zone-grid { grid-template-columns: 1fr 1fr; }
-  .recap-grid { grid-template-columns: 1fr 1fr; }
-  .app-body { padding: 16px; }
-  .accueil-card { padding: 32px 24px; }
-  .action-bar { flex-wrap: wrap; }
-}
-
-@media print {
-  .app-header, .action-bar, .mois-bar { display: none !important; }
+@media(max-width:700px){
+  .fields-grid,.bilan-grid{grid-template-columns:1fr}
+  .bilan-grid{grid-template-columns:1fr 1fr}
+  .zone-grid{grid-template-columns:1fr 1fr}
+  .dyn-row.rec-row{grid-template-columns:1fr 90px 70px 80px 34px}
+  .rec-cols{grid-template-columns:1fr 90px 70px 80px 34px}
+  .app-body{padding:16px 14px 60px}
+  .accueil-card{padding:32px 20px}
 }
 </style>
 </head>
 <body>
 
-<!-- ===== ÉCRAN ACCUEIL ===== -->
+<!-- ACCUEIL -->
 <div id="screen-accueil" class="screen active">
   <div class="accueil-deco deco-1">🌴</div>
   <div class="accueil-deco deco-2">🌿</div>
-
   <div class="accueil-card">
     <div class="accueil-logo">🌴</div>
     <h1 class="accueil-title">Palmeraie Dimako</h1>
     <p class="accueil-sub">Gestion intégrée 2026</p>
-
-    <div class="form-group">
+    <div class="form-group-acc">
       <label class="form-label">Votre nom</label>
-      <input type="text" id="inputNom" class="form-input" placeholder="Entrez votre nom..." autocomplete="off"
-        onkeydown="if(event.key==='Enter')entrer()">
+      <input type="text" id="inputNom" class="form-input-acc" placeholder="Entrez votre nom..."
+        autocomplete="off" onkeydown="if(event.key==='Enter')entrer()">
     </div>
-
-    <div class="form-group">
+    <div class="form-group-acc">
       <label class="form-label">Votre zone de travail</label>
       <div class="zone-grid">
         <button class="zone-btn" onclick="selectZone('production')" id="zone-production">
-          <span class="zone-icon">🌴</span>
-          <span class="zone-name">Zone de production</span>
+          <span class="zone-icon">🌴</span><span class="zone-name">Zone de production</span>
         </button>
         <button class="zone-btn" onclick="selectZone('dimako')" id="zone-dimako">
-          <span class="zone-icon">🛒</span>
-          <span class="zone-name">Boutique Dimako</span>
+          <span class="zone-icon">🛒</span><span class="zone-name">Boutique Dimako</span>
         </button>
         <button class="zone-btn" onclick="selectZone('bertoua')" id="zone-bertoua">
-          <span class="zone-icon">🏪</span>
-          <span class="zone-name">Boutique Bertoua</span>
+          <span class="zone-icon">🏪</span><span class="zone-name">Boutique Bertoua</span>
         </button>
       </div>
     </div>
-
     <div class="error-msg" id="accueilError">Veuillez entrer votre nom et choisir une zone.</div>
-
     <button class="btn-enter" onclick="entrer()">Accéder au formulaire →</button>
   </div>
 </div>
 
-<!-- ===== ÉCRAN APPLICATION ===== -->
+<!-- APP -->
 <div id="screen-app" class="screen">
-
   <header class="app-header">
     <div class="header-left">
       <div class="header-logo">🌴</div>
@@ -582,104 +284,209 @@ body {
 
   <div class="app-body">
     <div class="section-title" id="formTitle">Saisie mensuelle</div>
-    <p class="section-desc" id="formDesc">Sélectionnez le mois concerné puis remplissez les champs.</p>
+    <p class="section-desc">Sélectionnez le mois concerné puis remplissez les champs.</p>
 
-    <!-- Sélecteur de mois -->
     <div class="mois-bar" id="moisBar"></div>
 
-    <!-- Récap rapide -->
-    <div class="recap-grid" id="recapGrid" style="display:none">
-      <div class="recap-card"><div class="recap-val" id="recap1">—</div><div class="recap-label" id="recap1lbl">—</div></div>
-      <div class="recap-card"><div class="recap-val" id="recap2">—</div><div class="recap-label" id="recap2lbl">—</div></div>
-      <div class="recap-card"><div class="recap-val" id="recap3">—</div><div class="recap-label" id="recap3lbl">—</div></div>
+    <!-- BILAN CAISSE -->
+    <div id="bilanBox" style="display:none">
+      <div class="bilan-grid">
+        <div class="bilan-card green"><div class="bilan-val" id="bil-recettes">0 F</div><div class="bilan-label">Total recettes</div></div>
+        <div class="bilan-card gold"><div class="bilan-val" id="bil-depenses">0 F</div><div class="bilan-label">Total dépenses</div></div>
+        <div class="bilan-card red"><div class="bilan-val" id="bil-recouvrir">0 F</div><div class="bilan-label">À recouvrir</div></div>
+        <div class="bilan-card blue"><div class="bilan-val" id="bil-caisse">0 F</div><div class="bilan-label">💰 Bilan en caisse</div></div>
+      </div>
     </div>
 
-    <!-- FORMULAIRE PRODUCTION -->
+    <!-- FORM PRODUCTION -->
     <div id="form-production" style="display:none">
+
+      <!-- Récolte -->
       <div class="form-card">
         <div class="form-card-title"><span>🌴</span> Récolte</div>
         <div class="fields-grid">
           <div class="field-group">
             <label class="field-label">Régimes coupés</label>
-            <input type="number" class="field-input" id="p-regimes" placeholder="0" min="0" oninput="updateRecap()">
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input" id="p-regimes" placeholder="0" min="0" oninput="calcProd()">
+              <span class="unit-badge">régimes</span>
+            </div>
           </div>
+
+          <!-- Fûts -->
           <div class="field-group">
-            <label class="field-label">Fûts préparés</label>
-            <input type="number" class="field-input" id="p-futs" placeholder="0" min="0">
+            <label class="field-label">Type de fûts utilisés</label>
+            <div class="fut-type-row">
+              <button class="fut-type-btn active" id="fut-200" onclick="setFutType(200)">Fût 200 L</button>
+              <button class="fut-type-btn" id="fut-250" onclick="setFutType(250)">Fût 250 L</button>
+            </div>
           </div>
+
           <div class="field-group">
-            <label class="field-label">Huile obtenue (litres)</label>
-            <input type="number" class="field-input" id="p-huile" placeholder="0" min="0" oninput="updateRecap()">
+            <label class="field-label">Nombre de fûts préparés</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input" id="p-futs" placeholder="0" min="0" oninput="calcProd()">
+              <span class="unit-badge">fûts</span>
+            </div>
+            <span class="conv-badge" id="futs-litres-badge">= 0 L</span>
           </div>
+
           <div class="field-group">
+            <label class="field-label">Huile obtenue totale</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input field-ro" id="p-huile" placeholder="0" readonly>
+              <span class="unit-badge">litres</span>
+            </div>
+            <span class="conv-badge" id="huile-bidons-badge">= 0 bidons (21 L/bidon)</span>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Dons d'huile</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input" id="p-dons" placeholder="0" min="0" oninput="calcProd()">
+              <span class="unit-badge">litres</span>
+            </div>
+            <span class="conv-badge" id="dons-bidons-badge">= 0 bidons</span>
+          </div>
+
+          <div class="field-group" style="grid-column:1/-1">
             <label class="field-label">Observations</label>
-            <input type="text" class="field-input" id="p-obs" placeholder="Remarques...">
+            <textarea class="field-input field-textarea" id="p-obs" rows="3"
+              placeholder="Remarques, incidents, notes... (Entrée pour aller à la ligne)"></textarea>
           </div>
         </div>
       </div>
 
+      <!-- Dépenses production -->
       <div class="form-card">
         <div class="form-card-title"><span>💰</span> Dépenses</div>
-        <div class="fields-grid">
-          <div class="field-group">
-            <label class="field-label">Dons divers (FCFA)</label>
-            <input type="number" class="field-input" id="p-dons" placeholder="0" min="0" oninput="updateRecap()">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Salaires presseurs (FCFA)</label>
-            <input type="number" class="field-input" id="p-salaires" placeholder="0" min="0" oninput="updateRecap()">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Autres dépenses (FCFA)</label>
-            <input type="number" class="field-input" id="p-autres" placeholder="0" min="0" oninput="updateRecap()">
-          </div>
+        <div class="dyn-col-headers dep-cols">
+          <span class="dyn-col-hdr">Description</span>
+          <span class="dyn-col-hdr" style="text-align:right">Montant (FCFA)</span>
+          <span></span>
+        </div>
+        <div class="dyn-list" id="p-dep-list"></div>
+        <button class="btn-add-row" onclick="ajouterDep('p')">+ Ajouter une dépense</button>
+        <div class="total-bar">
+          <span class="total-bar-label">Total dépenses</span>
+          <span class="total-bar-val" id="p-dep-total">0 FCFA</span>
         </div>
       </div>
     </div>
 
-    <!-- FORMULAIRE BOUTIQUE -->
+    <!-- FORM BOUTIQUE -->
     <div id="form-boutique" style="display:none">
+
+      <!-- Stock -->
       <div class="form-card">
         <div class="form-card-title"><span>🫙</span> Stock & Mouvements</div>
         <div class="fields-grid">
+
           <div class="field-group">
-            <label class="field-label">Huile récupérée (litres)</label>
-            <input type="number" class="field-input" id="b-recup" placeholder="0" min="0" oninput="updateRecap()">
+            <label class="field-label">Huile récupérée</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input" id="b-recup-l" placeholder="0" min="0" oninput="calcBout()">
+              <span class="unit-badge">litres</span>
+            </div>
+            <span class="conv-badge" id="b-recup-bid-badge">= 0 bidons</span>
           </div>
+
           <div class="field-group">
-            <label class="field-label">Huile sortie (bidons)</label>
-            <input type="number" class="field-input" id="b-sortie" placeholder="0" min="0">
+            <label class="field-label">Huile récupérée (bidons)</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input field-ro" id="b-recup-bid" placeholder="0" readonly>
+              <span class="unit-badge">bidons</span>
+            </div>
           </div>
+
           <div class="field-group">
-            <label class="field-label">Huile vendue (bidons)</label>
-            <input type="number" class="field-input" id="b-vendu" placeholder="0" min="0">
+            <label class="field-label">Huile sortie</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input" id="b-sortie" placeholder="0" min="0" oninput="calcBout()">
+              <span class="unit-badge">bidons</span>
+            </div>
+            <span class="conv-badge" id="b-sortie-l-badge">= 0 L</span>
           </div>
+
           <div class="field-group">
-            <label class="field-label">À recouvrir (bidons)</label>
-            <input type="number" class="field-input" id="b-recouvrir" placeholder="0" min="0">
+            <label class="field-label">Huile vendue</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input field-ro" id="b-vendu-total" placeholder="0" readonly>
+              <span class="unit-badge">bidons</span>
+            </div>
+            <span class="conv-badge" id="b-vendu-l-badge">= 0 L</span>
           </div>
+
           <div class="field-group">
-            <label class="field-label">Stock restant (bidons)</label>
-            <input type="number" class="field-input" id="b-stocks" placeholder="0" min="0">
+            <label class="field-label">Stock restant</label>
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input field-ro" id="b-stocks" placeholder="0" readonly>
+              <span class="unit-badge">bidons</span>
+            </div>
+            <span class="conv-badge" id="b-stocks-l-badge">= 0 L</span>
           </div>
+
           <div class="field-group">
             <label class="field-label">Retour mauvaise huile</label>
-            <input type="number" class="field-input" id="b-retour" placeholder="0" min="0">
+            <div class="input-unit-wrap">
+              <input type="number" class="field-input" id="b-retour" placeholder="0" min="0" oninput="calcBout()">
+              <span class="unit-badge">bidons</span>
+            </div>
           </div>
         </div>
       </div>
 
+      <!-- Recettes par ligne -->
       <div class="form-card">
-        <div class="form-card-title"><span>💰</span> Finances</div>
-        <div class="fields-grid">
-          <div class="field-group">
-            <label class="field-label">Recettes (FCFA)</label>
-            <input type="number" class="field-input" id="b-recettes" placeholder="0" min="0" oninput="updateRecap()">
-          </div>
-          <div class="field-group">
-            <label class="field-label">Dépenses (FCFA)</label>
-            <input type="number" class="field-input" id="b-depenses" placeholder="0" min="0" oninput="updateRecap()">
-          </div>
+        <div class="form-card-title"><span>💵</span> Recettes (détail des ventes)</div>
+        <div class="dyn-col-headers rec-cols">
+          <span class="dyn-col-hdr">Client / Description</span>
+          <span class="dyn-col-hdr" style="text-align:right">Prix/bidon</span>
+          <span class="dyn-col-hdr" style="text-align:right">Bidons vendus</span>
+          <span class="dyn-col-hdr" style="text-align:right">Sous-total</span>
+          <span></span>
+        </div>
+        <div class="dyn-list" id="b-rec-list"></div>
+        <button class="btn-add-row" onclick="ajouterRec()">+ Ajouter une vente</button>
+        <div class="total-bar" style="margin-top:8px">
+          <span class="total-bar-label">Total vendu</span>
+          <span class="total-bar-val" id="b-rec-bidons">0 bidons</span>
+        </div>
+        <div class="total-bar" style="margin-top:6px;background:#E8F5EE;border-color:#B7DDC8">
+          <span class="total-bar-label" style="color:var(--green-mid)">Total recettes</span>
+          <span class="total-bar-val" id="b-rec-total" style="color:var(--green-mid)">0 FCFA</span>
+        </div>
+      </div>
+
+      <!-- À recouvrir -->
+      <div class="form-card">
+        <div class="form-card-title"><span>📋</span> Créances (à recouvrir)</div>
+        <div class="dyn-col-headers dep-cols">
+          <span class="dyn-col-hdr">Client / Description</span>
+          <span class="dyn-col-hdr" style="text-align:right">Montant (FCFA)</span>
+          <span></span>
+        </div>
+        <div class="dyn-list" id="b-rec-list-2"></div>
+        <button class="btn-add-row" onclick="ajouterRecouvrir()">+ Ajouter une créance</button>
+        <div class="total-bar">
+          <span class="total-bar-label">Total à recouvrir</span>
+          <span class="total-bar-val" id="b-recouvrir-total" style="color:#B83232">0 FCFA</span>
+        </div>
+      </div>
+
+      <!-- Dépenses boutique -->
+      <div class="form-card">
+        <div class="form-card-title"><span>💰</span> Dépenses</div>
+        <div class="dyn-col-headers dep-cols">
+          <span class="dyn-col-hdr">Description</span>
+          <span class="dyn-col-hdr" style="text-align:right">Montant (FCFA)</span>
+          <span></span>
+        </div>
+        <div class="dyn-list" id="b-dep-list"></div>
+        <button class="btn-add-row" onclick="ajouterDep('b')">+ Ajouter une dépense</button>
+        <div class="total-bar">
+          <span class="total-bar-label">Total dépenses</span>
+          <span class="total-bar-val" id="b-dep-total">0 FCFA</span>
         </div>
       </div>
     </div>
@@ -688,7 +495,11 @@ body {
     <div class="action-bar" id="actionBar" style="display:none">
       <button class="btn-save" onclick="sauvegarder()">✓ Enregistrer</button>
       <button class="btn-pdf" onclick="genererPDF()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
         Générer PDF
       </button>
       <button class="btn-reset" onclick="viderFormulaire()">✗ Effacer</button>
@@ -700,43 +511,45 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-const MOIS = ['JANVIER','FÉVRIER','MARS','AVRIL','MAI','JUIN','JUILLET','AOÛT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DÉCEMBRE'];
+// ===== CONSTANTES =====
+const MOIS       = ['JANVIER','FÉVRIER','MARS','AVRIL','MAI','JUIN','JUILLET','AOÛT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DÉCEMBRE'];
+const L_PAR_BIDON = 21;
+let futType       = 200; // default
 
-let currentUser = '';
-let currentZone = '';
-let currentMois = '';
-let allData = JSON.parse(localStorage.getItem('palmeraie_v2') || '{"production":{},"dimako":{},"bertoua":{}}');
+let currentUser  = '';
+let currentZone  = '';
+let currentMois  = '';
+let allData      = JSON.parse(localStorage.getItem('palmeraie_v3') || '{}');
+
+// ===== UTILITAIRES =====
+const fmt  = n => Number(n||0).toLocaleString('fr-FR');
+const $    = id => document.getElementById(id);
+const fv   = id => parseFloat($( id)?.value) || 0;
+
+function bidonToL(b)  { return b * L_PAR_BIDON; }
+function lToBidon(l)  { return l / L_PAR_BIDON; }
 
 // ===== ACCUEIL =====
-function selectZone(zone) {
-  currentZone = zone;
+function selectZone(z) {
+  currentZone = z;
   document.querySelectorAll('.zone-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('zone-' + zone).classList.add('selected');
+  $('zone-' + z).classList.add('selected');
 }
 
 function entrer() {
-  const nom = document.getElementById('inputNom').value.trim();
-  const err = document.getElementById('accueilError');
-  if (!nom || !currentZone) { err.style.display = 'block'; return; }
-  err.style.display = 'none';
+  const nom = $('inputNom').value.trim();
+  if (!nom || !currentZone) { $('accueilError').style.display = 'block'; return; }
+  $('accueilError').style.display = 'none';
   currentUser = nom;
-  lancerApp();
-}
 
-function lancerApp() {
-  // Update header
-  document.getElementById('userAvatarApp').textContent = currentUser.charAt(0).toUpperCase();
-  document.getElementById('userNameApp').textContent = currentUser;
+  $('userAvatarApp').textContent = nom.charAt(0).toUpperCase();
+  $('userNameApp').textContent   = nom;
+  const labels = { production:'🌴 Zone de production', dimako:'🛒 Boutique Dimako', bertoua:'🏪 Boutique Bertoua' };
+  $('headerZone').textContent  = labels[currentZone];
+  $('formTitle').textContent   = { production:'Zone de production', dimako:'Boutique Dimako', bertoua:'Boutique Bertoua' }[currentZone];
 
-  const zoneLabels = { production: '🌴 Zone de production', dimako: '🛒 Boutique Dimako', bertoua: '🏪 Boutique Bertoua' };
-  document.getElementById('headerZone').textContent = zoneLabels[currentZone];
-
-  const titres = { production: 'Zone de production', dimako: 'Boutique Dimako', bertoua: 'Boutique Bertoua' };
-  document.getElementById('formTitle').textContent = titres[currentZone];
-  document.getElementById('formDesc').textContent = 'Sélectionnez le mois puis remplissez les informations.';
-
-  // Mois bar
-  const bar = document.getElementById('moisBar');
+  // Build mois bar
+  const bar = $('moisBar');
   bar.innerHTML = '';
   MOIS.forEach(m => {
     const btn = document.createElement('button');
@@ -747,79 +560,262 @@ function lancerApp() {
     bar.appendChild(btn);
   });
 
-  // Show correct form
-  document.getElementById('form-production').style.display = currentZone === 'production' ? 'block' : 'none';
-  document.getElementById('form-boutique').style.display   = currentZone !== 'production' ? 'block' : 'none';
+  $('form-production').style.display = currentZone === 'production' ? 'block' : 'none';
+  $('form-boutique').style.display   = currentZone !== 'production' ? 'block' : 'none';
 
-  // Switch screens
-  document.getElementById('screen-accueil').classList.remove('active');
-  document.getElementById('screen-app').classList.add('active');
+  $('screen-accueil').classList.remove('active');
+  $('screen-app').classList.add('active');
 }
 
 function deconnecter() {
   currentUser = ''; currentZone = ''; currentMois = '';
-  document.getElementById('inputNom').value = '';
+  $('inputNom').value = '';
   document.querySelectorAll('.zone-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('screen-app').classList.remove('active');
-  document.getElementById('screen-accueil').classList.add('active');
+  $('screen-app').classList.remove('active');
+  $('screen-accueil').classList.add('active');
 }
 
 // ===== MOIS =====
 function selectionnerMois(mois) {
   currentMois = mois;
-  document.querySelectorAll('.mois-chip').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.mois-chip').forEach(c => {
-    if (c.title === mois) c.classList.add('selected');
-  });
-
-  // Load saved data
-  const store = allData[currentZone]?.[mois] || {};
-  chargerDonnees(store);
-
-  document.getElementById('actionBar').style.display  = 'flex';
-  document.getElementById('recapGrid').style.display  = 'grid';
-  updateRecap();
+  document.querySelectorAll('.mois-chip').forEach(c => c.classList.toggle('selected', c.title === mois));
+  const data = (allData[currentZone] || {})[mois] || {};
+  chargerDonnees(data);
+  $('actionBar').style.display = 'flex';
+  $('bilanBox').style.display  = 'block';
+  updateBilan();
 }
 
+// ===== FÛT TYPE =====
+function setFutType(t) {
+  futType = t;
+  $('fut-200').classList.toggle('active', t === 200);
+  $('fut-250').classList.toggle('active', t === 250);
+  calcProd();
+}
+
+// ===== CALCULS PRODUCTION =====
+function calcProd() {
+  const futs    = fv('p-futs');
+  const futsL   = futs * futType;
+  const huileL  = futsL;
+  const donsL   = fv('p-dons');
+  const bidons  = Math.floor(huileL / L_PAR_BIDON);
+  const donsBid = (donsL / L_PAR_BIDON).toFixed(2);
+
+  $('p-huile').value = huileL;
+  $('futs-litres-badge').textContent   = `= ${fmt(futsL)} L`;
+  $('huile-bidons-badge').textContent  = `= ${fmt(bidons)} bidons (${L_PAR_BIDON} L/bidon)`;
+  $('dons-bidons-badge').textContent   = `= ${donsBid} bidons`;
+  calcDepTotal('p');
+}
+
+// ===== CALCULS BOUTIQUE =====
+function calcBout() {
+  const recupL   = fv('b-recup-l');
+  const recupBid = recupL / L_PAR_BIDON;
+  $('b-recup-bid').value = recupBid.toFixed(2);
+  $('b-recup-bid-badge').textContent = `= ${recupBid.toFixed(1)} bidons`;
+
+  const sortie  = fv('b-sortie');
+  $('b-sortie-l-badge').textContent = `= ${fmt(sortie * L_PAR_BIDON)} L`;
+
+  // Vendu total calculé depuis les lignes recettes
+  const venduTotal = calcRecTotal();
+  $('b-vendu-total').value = venduTotal;
+  $('b-vendu-l-badge').textContent = `= ${fmt(venduTotal * L_PAR_BIDON)} L`;
+
+  // Stock = récupéré(bid) - sortie - vendu - retour
+  const stocks = Math.max(0, recupBid - sortie - venduTotal - fv('b-retour'));
+  $('b-stocks').value = stocks.toFixed(1);
+  $('b-stocks-l-badge').textContent = `= ${fmt(stocks * L_PAR_BIDON)} L`;
+
+  calcDepTotal('b');
+  calcRecouvrirTotal();
+  updateBilan();
+}
+
+// ===== LIGNES DÉPENSES =====
+function ajouterDep(prefix, desc='', montant='') {
+  const list = $(prefix + '-dep-list');
+  const row  = document.createElement('div');
+  row.className = 'dyn-row dep-row';
+  row.innerHTML = `
+    <input type="text"   class="field-input" placeholder="Ex: Carburant, Salaire..." value="${desc}"
+      oninput="calcDepTotal('${prefix}')">
+    <input type="number" class="field-input" placeholder="0" min="0" value="${montant}"
+      oninput="calcDepTotal('${prefix}');updateBilan()">
+    <button class="btn-rm" onclick="this.closest('.dyn-row').remove();calcDepTotal('${prefix}');updateBilan()" title="Supprimer">×</button>
+  `;
+  list.appendChild(row);
+  row.querySelector('input[type="text"]').focus();
+  calcDepTotal(prefix);
+}
+
+function calcDepTotal(prefix) {
+  const list  = $(prefix + '-dep-list');
+  if (!list) return 0;
+  const total = [...list.querySelectorAll('input[type="number"]')]
+    .reduce((s, el) => s + (parseFloat(el.value)||0), 0);
+  $(prefix + '-dep-total').textContent = fmt(total) + ' FCFA';
+  return total;
+}
+
+function getDepenses(prefix) {
+  const list = $(prefix + '-dep-list');
+  if (!list) return [];
+  return [...list.querySelectorAll('.dyn-row')].map(r => {
+    const ins = r.querySelectorAll('input');
+    return { desc: ins[0].value.trim(), montant: parseFloat(ins[1].value)||0 };
+  }).filter(d => d.desc || d.montant);
+}
+
+function chargerDeps(prefix, data) {
+  const list = $(prefix + '-dep-list');
+  list.innerHTML = '';
+  if (data && data.length) data.forEach(d => ajouterDep(prefix, d.desc, d.montant));
+  else ajouterDep(prefix);
+}
+
+// ===== LIGNES RECETTES =====
+function ajouterRec(desc='', prix='', qte='') {
+  const list = $('b-rec-list');
+  const row  = document.createElement('div');
+  row.className = 'dyn-row rec-row';
+  const sous = (parseFloat(prix)||0) * (parseFloat(qte)||0);
+  row.innerHTML = `
+    <input type="text"   class="field-input" placeholder="Client / Vente..." value="${desc}">
+    <input type="number" class="field-input" placeholder="0" min="0" value="${prix}"
+      oninput="updateSousTotal(this);calcRecTotal();calcBout()">
+    <input type="number" class="field-input" placeholder="0" min="0" value="${qte}"
+      oninput="updateSousTotal(this);calcRecTotal();calcBout()">
+    <div class="cell-ro" id="">${sous ? fmt(sous) + ' F' : '—'}</div>
+    <button class="btn-rm" onclick="this.closest('.dyn-row').remove();calcRecTotal();calcBout()" title="Supprimer">×</button>
+  `;
+  list.appendChild(row);
+  row.querySelector('input[type="text"]').focus();
+  calcRecTotal();
+}
+
+function updateSousTotal(input) {
+  const row   = input.closest('.dyn-row');
+  const ins   = row.querySelectorAll('input[type="number"]');
+  const sous  = (parseFloat(ins[0].value)||0) * (parseFloat(ins[1].value)||0);
+  row.querySelector('.cell-ro').textContent = sous ? fmt(sous) + ' F' : '—';
+}
+
+function calcRecTotal() {
+  const list = $('b-rec-list');
+  if (!list) return 0;
+  let totalF = 0, totalBid = 0;
+  [...list.querySelectorAll('.dyn-row')].forEach(row => {
+    const ins  = row.querySelectorAll('input[type="number"]');
+    const prix = parseFloat(ins[0].value)||0;
+    const qte  = parseFloat(ins[1].value)||0;
+    totalF   += prix * qte;
+    totalBid += qte;
+  });
+  $('b-rec-total').textContent  = fmt(totalF)   + ' FCFA';
+  $('b-rec-bidons').textContent = fmt(totalBid) + ' bidons';
+  return totalBid;
+}
+
+function getRecettes() {
+  const list = $('b-rec-list');
+  if (!list) return [];
+  return [...list.querySelectorAll('.dyn-row')].map(r => {
+    const ins = r.querySelectorAll('input');
+    return { desc: ins[0].value.trim(), prix: parseFloat(ins[1].value)||0, qte: parseFloat(ins[2].value)||0 };
+  }).filter(r => r.desc || r.prix || r.qte);
+}
+
+function chargerRec(data) {
+  $('b-rec-list').innerHTML = '';
+  if (data && data.length) data.forEach(r => ajouterRec(r.desc, r.prix, r.qte));
+  else ajouterRec();
+}
+
+// ===== LIGNES À RECOUVRIR =====
+function ajouterRecouvrir(desc='', montant='') {
+  const list = $('b-rec-list-2');
+  const row  = document.createElement('div');
+  row.className = 'dyn-row dep-row';
+  row.innerHTML = `
+    <input type="text"   class="field-input" placeholder="Nom client / détail..." value="${desc}"
+      oninput="calcRecouvrirTotal()">
+    <input type="number" class="field-input" placeholder="0" min="0" value="${montant}"
+      oninput="calcRecouvrirTotal();updateBilan()">
+    <button class="btn-rm" onclick="this.closest('.dyn-row').remove();calcRecouvrirTotal();updateBilan()" title="Supprimer">×</button>
+  `;
+  list.appendChild(row);
+  row.querySelector('input[type="text"]').focus();
+  calcRecouvrirTotal();
+}
+
+function calcRecouvrirTotal() {
+  const list  = $('b-rec-list-2');
+  if (!list) return 0;
+  const total = [...list.querySelectorAll('input[type="number"]')]
+    .reduce((s, el) => s + (parseFloat(el.value)||0), 0);
+  $('b-recouvrir-total').textContent = fmt(total) + ' FCFA';
+  return total;
+}
+
+function getRecouvrir() {
+  const list = $('b-rec-list-2');
+  if (!list) return [];
+  return [...list.querySelectorAll('.dyn-row')].map(r => {
+    const ins = r.querySelectorAll('input');
+    return { desc: ins[0].value.trim(), montant: parseFloat(ins[1].value)||0 };
+  }).filter(d => d.desc || d.montant);
+}
+
+function chargerRecouvrir(data) {
+  $('b-rec-list-2').innerHTML = '';
+  if (data && data.length) data.forEach(d => ajouterRecouvrir(d.desc, d.montant));
+  else ajouterRecouvrir();
+}
+
+// ===== BILAN CAISSE =====
+function updateBilan() {
+  if (currentZone === 'production') return;
+  const recList = $('b-rec-list');
+  let totalRec = 0;
+  if (recList) {
+    [...recList.querySelectorAll('.dyn-row')].forEach(row => {
+      const ins = row.querySelectorAll('input[type="number"]');
+      totalRec += (parseFloat(ins[0].value)||0) * (parseFloat(ins[1].value)||0);
+    });
+  }
+  const totalDep     = calcDepTotal('b');
+  const totalRecouv  = calcRecouvrirTotal();
+  const caisse       = totalRec - totalDep - totalRecouv;
+
+  $('bil-recettes').textContent  = fmt(totalRec)    + ' F';
+  $('bil-depenses').textContent  = fmt(totalDep)    + ' F';
+  $('bil-recouvrir').textContent = fmt(totalRecouv) + ' F';
+  $('bil-caisse').textContent    = fmt(caisse)      + ' F';
+  $('bil-caisse').style.color    = caisse >= 0 ? '#90EEC0' : '#FFAAAA';
+}
+
+// ===== CHARGER DONNÉES =====
 function chargerDonnees(data) {
-  const Z = currentZone === 'production';
-  const ids = Z
-    ? ['p-regimes','p-futs','p-huile','p-obs','p-dons','p-salaires','p-autres']
-    : ['b-recup','b-sortie','b-vendu','b-recouvrir','b-stocks','b-retour','b-recettes','b-depenses'];
-  const keys = Z
-    ? ['regimes','futs','huile','obs','dons','salaires','autres']
-    : ['recup','sortie','vendu','recouvrir','stocks','retour','recettes','depenses'];
-  ids.forEach((id, i) => {
-    const el = document.getElementById(id);
-    if (el) el.value = data[keys[i]] || '';
-  });
-}
-
-// ===== RECAP =====
-function updateRecap() {
-  if (!currentMois) return;
   if (currentZone === 'production') {
-    const reg  = +document.getElementById('p-regimes').value||0;
-    const h    = +document.getElementById('p-huile').value||0;
-    const dep  = (+document.getElementById('p-dons').value||0) + (+document.getElementById('p-salaires').value||0) + (+document.getElementById('p-autres').value||0);
-    const rend = reg > 0 ? (h/reg).toFixed(1) : '—';
-    document.getElementById('recap1').textContent = reg.toLocaleString('fr-FR');
-    document.getElementById('recap1lbl').textContent = 'Régimes coupés';
-    document.getElementById('recap2').textContent = h.toLocaleString('fr-FR') + ' L';
-    document.getElementById('recap2lbl').textContent = 'Huile produite';
-    document.getElementById('recap3').textContent = dep.toLocaleString('fr-FR') + ' F';
-    document.getElementById('recap3lbl').textContent = 'Total dépenses';
+    $('p-regimes').value = data.regimes || '';
+    $('p-dons').value    = data.dons    || '';
+    $('p-obs').value     = data.obs     || '';
+    if (data.futType) setFutType(data.futType);
+    $('p-futs').value    = data.futs    || '';
+    chargerDeps('p', data.depenses);
+    calcProd();
   } else {
-    const rec  = +document.getElementById('b-recettes').value||0;
-    const dep  = +document.getElementById('b-depenses').value||0;
-    const sol  = rec - dep;
-    document.getElementById('recap1').textContent = rec.toLocaleString('fr-FR') + ' F';
-    document.getElementById('recap1lbl').textContent = 'Recettes';
-    document.getElementById('recap2').textContent = dep.toLocaleString('fr-FR') + ' F';
-    document.getElementById('recap2lbl').textContent = 'Dépenses';
-    document.getElementById('recap3').textContent = sol.toLocaleString('fr-FR') + ' F';
-    document.getElementById('recap3lbl').textContent = 'Solde';
-    document.getElementById('recap3').style.color = sol >= 0 ? '#1A6B4A' : '#B83232';
+    $('b-recup-l').value  = data.recup_l  || '';
+    $('b-sortie').value   = data.sortie   || '';
+    $('b-retour').value   = data.retour   || '';
+    chargerRec(data.recettes);
+    chargerRecouvrir(data.recouvrir);
+    chargerDeps('b', data.depenses);
+    calcBout();
   }
 }
 
@@ -830,29 +826,26 @@ function sauvegarder() {
 
   if (currentZone === 'production') {
     allData[currentZone][currentMois] = {
-      regimes: document.getElementById('p-regimes').value,
-      futs:    document.getElementById('p-futs').value,
-      huile:   document.getElementById('p-huile').value,
-      obs:     document.getElementById('p-obs').value,
-      dons:    document.getElementById('p-dons').value,
-      salaires:document.getElementById('p-salaires').value,
-      autres:  document.getElementById('p-autres').value,
+      regimes:  $('p-regimes').value,
+      futs:     $('p-futs').value,
+      futType,
+      huile:    $('p-huile').value,
+      dons:     $('p-dons').value,
+      obs:      $('p-obs').value,
+      depenses: getDepenses('p'),
     };
   } else {
     allData[currentZone][currentMois] = {
-      recup:    document.getElementById('b-recup').value,
-      sortie:   document.getElementById('b-sortie').value,
-      vendu:    document.getElementById('b-vendu').value,
-      recouvrir:document.getElementById('b-recouvrir').value,
-      stocks:   document.getElementById('b-stocks').value,
-      retour:   document.getElementById('b-retour').value,
-      recettes: document.getElementById('b-recettes').value,
-      depenses: document.getElementById('b-depenses').value,
+      recup_l:   $('b-recup-l').value,
+      sortie:    $('b-sortie').value,
+      retour:    $('b-retour').value,
+      recettes:  getRecettes(),
+      recouvrir: getRecouvrir(),
+      depenses:  getDepenses('b'),
     };
   }
-
-  localStorage.setItem('palmeraie_v2', JSON.stringify(allData));
-  const badge = document.getElementById('savedBadge');
+  localStorage.setItem('palmeraie_v3', JSON.stringify(allData));
+  const badge = $('savedBadge');
   badge.style.display = 'flex';
   setTimeout(() => { badge.style.display = 'none'; }, 3000);
   showToast('✓ ' + currentMois + ' enregistré');
@@ -860,181 +853,212 @@ function sauvegarder() {
 
 // ===== EFFACER =====
 function viderFormulaire() {
-  document.querySelectorAll('#form-production .field-input, #form-boutique .field-input').forEach(el => { el.value = ''; });
-  updateRecap();
+  document.querySelectorAll('.field-input:not(.field-ro)').forEach(el => {
+    if (el.tagName === 'TEXTAREA') el.value = '';
+    else if (el.type !== 'button') el.value = '';
+  });
+  ['p-dep-list','b-dep-list','b-rec-list','b-rec-list-2'].forEach(id => {
+    const el = $(id); if (el) el.innerHTML = '';
+  });
+  if (currentZone === 'production') ajouterDep('p');
+  else { ajouterRec(); ajouterRecouvrir(); ajouterDep('b'); }
+  calcProd(); calcBout();
 }
 
 // ===== PDF =====
 function genererPDF() {
   if (!currentMois) { showToast('Sélectionnez un mois ❗'); return; }
-
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const doc = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  const W = 210, M = 16;
+  const GREEN = [13,59,46], GOLD = [200,134,10], CREAM = [247,244,238];
+  const TEXT  = [26,32,24],  MUTED = [107,122,101], WHITE = [255,255,255];
+  let y = 0;
 
-  const GREEN      = [13, 59, 46];
-  const GOLD       = [200, 134, 10];
-  const CREAM      = [247, 244, 238];
-  const TEXT       = [26, 32, 24];
-  const MUTED      = [107, 122, 101];
-  const WHITE      = [255, 255, 255];
-  const W          = 210;
-  const MARGIN     = 18;
-  let   y          = 0;
-
-  // Header band
+  // Header
   doc.setFillColor(...GREEN);
-  doc.rect(0, 0, W, 40, 'F');
-
-  // Logo zone (palm emoji approximation via text)
+  doc.rect(0, 0, W, 38, 'F');
   doc.setTextColor(...GOLD);
-  doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  doc.text('PALMERAIE DIMAKO', MARGIN, 16);
-
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(180, 180, 160);
-  const zoneLabel = { production:'Zone de production', dimako:'Boutique Dimako', bertoua:'Boutique Bertoua' }[currentZone];
-  doc.text(zoneLabel.toUpperCase(), MARGIN, 23);
-
-  // Right side: date & user
+  doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text('PALMERAIE DIMAKO', M, 14);
+  doc.setFontSize(8); doc.setFont('helvetica','normal');
+  doc.setTextColor(180,180,160);
+  const zLabel = {production:'Zone de production',dimako:'Boutique Dimako',bertoua:'Boutique Bertoua'}[currentZone];
+  doc.text(zLabel.toUpperCase(), M, 21);
+  const dateStr = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
   doc.setTextColor(...GOLD);
-  doc.setFontSize(9);
-  const dateStr = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
-  doc.text(dateStr, W - MARGIN, 16, { align: 'right' });
-  doc.setTextColor(180, 180, 160);
-  doc.text('Saisi par : ' + currentUser, W - MARGIN, 23, { align: 'right' });
+  doc.setFontSize(8);
+  doc.text(dateStr, W-M, 14, {align:'right'});
+  doc.setTextColor(180,180,160);
+  doc.text('Saisi par : '+currentUser, W-M, 21, {align:'right'});
+  doc.setDrawColor(...GOLD); doc.setLineWidth(0.7);
+  doc.line(M, 36, W-M, 36);
 
-  // Gold underline
-  doc.setDrawColor(...GOLD);
-  doc.setLineWidth(0.8);
-  doc.line(MARGIN, 38, W - MARGIN, 38);
-
-  y = 50;
-
-  // Title block
+  y = 46;
+  // Title
   doc.setFillColor(...CREAM);
-  doc.roundedRect(MARGIN, y, W - MARGIN*2, 18, 3, 3, 'F');
-  doc.setTextColor(...GREEN);
-  doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text('RAPPORT MENSUEL — ' + currentMois + ' 2026', MARGIN + 8, y + 12);
-  y += 26;
+  doc.roundedRect(M, y, W-M*2, 14, 2, 2, 'F');
+  doc.setTextColor(...GREEN); doc.setFontSize(12); doc.setFont('helvetica','bold');
+  doc.text('RAPPORT MENSUEL — '+currentMois+' 2026', M+6, y+9.5);
+  y += 22;
 
   // Section helper
-  function drawSection(title, rows) {
-    // Section header
+  function section(title, rows) {
+    if (y > 250) { doc.addPage(); y = 20; }
     doc.setFillColor(...GREEN);
-    doc.rect(MARGIN, y, W - MARGIN*2, 9, 'F');
-    doc.setTextColor(...WHITE);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.text(title.toUpperCase(), MARGIN + 4, y + 6);
-    y += 9;
-
+    doc.rect(M, y, W-M*2, 8, 'F');
+    doc.setTextColor(...WHITE); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+    doc.text(title.toUpperCase(), M+3, y+5.5);
+    y += 8;
     rows.forEach((row, i) => {
-      const bg = i % 2 === 0 ? WHITE : CREAM;
-      doc.setFillColor(...bg);
-      doc.rect(MARGIN, y, W - MARGIN*2, 9, 'F');
-      doc.setTextColor(...MUTED);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.text(row[0], MARGIN + 4, y + 6);
-      doc.setTextColor(...TEXT);
-      doc.setFont('helvetica', 'bold');
-      doc.text(String(row[1] || '—'), W - MARGIN - 4, y + 6, { align: 'right' });
-      y += 9;
+      if (y > 265) { doc.addPage(); y = 20; }
+      doc.setFillColor(...(i%2===0 ? WHITE : CREAM));
+      doc.rect(M, y, W-M*2, 8, 'F');
+      doc.setTextColor(...MUTED); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+      doc.text(String(row[0]), M+3, y+5.5);
+      doc.setTextColor(...TEXT); doc.setFont('helvetica','bold');
+      doc.text(String(row[1]||'—'), W-M-3, y+5.5, {align:'right'});
+      y += 8;
     });
-
-    // Border
-    doc.setDrawColor(...GREEN);
-    doc.setLineWidth(0.3);
-    doc.rect(MARGIN, y - 9 * rows.length - 9, W - MARGIN*2, 9 * rows.length + 9, 'S');
-    y += 6;
+    doc.setDrawColor(200,210,200); doc.setLineWidth(0.2);
+    doc.rect(M, y-8*rows.length-8, W-M*2, 8*rows.length+8, 'S');
+    y += 5;
   }
 
-  if (currentZone === 'production') {
-    const d = allData.production?.[currentMois] || {};
-    const reg  = +d.regimes||0, h = +d.huile||0;
-    const dep  = (+d.dons||0) + (+d.salaires||0) + (+d.autres||0);
-    const rend = reg > 0 ? (h/reg).toFixed(2) + ' L/rég.' : '—';
+  const data = (allData[currentZone]||{})[currentMois]||{};
 
-    drawSection('🌴 Récolte', [
-      ['Régimes coupés',    (reg||'—') + (reg?' régimes':'')],
-      ['Fûts préparés',    (d.futs||'—') + (d.futs?' fûts':'')],
-      ['Huile obtenue',    h ? h.toLocaleString('fr-FR') + ' litres' : '—'],
-      ['Rendement',        rend],
-      ['Observations',     d.obs || '—'],
+  if (currentZone === 'production') {
+    const futs = parseFloat(data.futs)||0;
+    const ft   = data.futType||200;
+    const huileL = futs * ft;
+    const bid    = Math.floor(huileL/L_PAR_BIDON);
+    const donsL  = parseFloat(data.dons)||0;
+
+    section('🌴 Récolte', [
+      ['Régimes coupés',     (data.regimes||0)+' régimes'],
+      ['Fûts préparés',      futs+' fûts ('+ft+' L/fût)'],
+      ['Huile obtenue',      fmt(huileL)+' L = '+bid+' bidons ('+L_PAR_BIDON+' L/bidon)'],
+      ['Dons d\'huile',      donsL ? fmt(donsL)+' L = '+(donsL/L_PAR_BIDON).toFixed(2)+' bidons' : '—'],
     ]);
 
-    drawSection('💰 Dépenses', [
-      ['Dons divers',          d.dons    ? Number(d.dons).toLocaleString('fr-FR')     + ' FCFA' : '—'],
-      ['Salaires presseurs',   d.salaires? Number(d.salaires).toLocaleString('fr-FR') + ' FCFA' : '—'],
-      ['Autres dépenses',      d.autres  ? Number(d.autres).toLocaleString('fr-FR')   + ' FCFA' : '—'],
-      ['TOTAL DÉPENSES',       dep       ? dep.toLocaleString('fr-FR')                + ' FCFA' : '—'],
+    if (data.obs) {
+      if (y > 240) { doc.addPage(); y = 20; }
+      doc.setFillColor(...GREEN); doc.rect(M, y, W-M*2, 8, 'F');
+      doc.setTextColor(...WHITE); doc.setFontSize(7.5); doc.setFont('helvetica','bold');
+      doc.text('OBSERVATIONS', M+3, y+5.5);
+      y += 8;
+      doc.setFillColor(...CREAM); doc.rect(M, y, W-M*2, 24, 'F');
+      doc.setTextColor(...TEXT); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+      const lines = doc.splitTextToSize(data.obs, W-M*2-6);
+      doc.text(lines, M+3, y+6);
+      y += Math.max(24, lines.length * 5) + 5;
+    }
+
+    const deps = data.depenses||[];
+    const totalDep = deps.reduce((s,d)=>s+(+d.montant||0),0);
+    section('💰 Dépenses', [
+      ...deps.map(d=>[d.desc||'—', fmt(d.montant)+' FCFA']),
+      ['TOTAL DÉPENSES', fmt(totalDep)+' FCFA'],
     ]);
 
   } else {
-    const d = allData[currentZone]?.[currentMois] || {};
-    const rec = +d.recettes||0, dep = +d.depenses||0, sol = rec - dep;
+    const recupL  = parseFloat(data.recup_l)||0;
+    const sortie  = parseFloat(data.sortie)||0;
+    const retour  = parseFloat(data.retour)||0;
+    const recs    = data.recettes||[];
+    const totalBid = recs.reduce((s,r)=>s+(+r.qte||0),0);
+    const totalRec = recs.reduce((s,r)=>s+(+r.prix||0)*(+r.qte||0),0);
+    const recouv   = data.recouvrir||[];
+    const totalRecouv = recouv.reduce((s,r)=>s+(+r.montant||0),0);
+    const deps     = data.depenses||[];
+    const totalDep = deps.reduce((s,d)=>s+(+d.montant||0),0);
+    const caisse   = totalRec - totalDep - totalRecouv;
+    const stocks   = Math.max(0, recupL/L_PAR_BIDON - sortie - totalBid - retour);
 
-    drawSection('🫙 Stock & Mouvements', [
-      ['Huile récupérée',     d.recup     ? Number(d.recup).toLocaleString('fr-FR')     + ' litres' : '—'],
-      ['Huile sortie',        d.sortie    ? Number(d.sortie).toLocaleString('fr-FR')    + ' bidons' : '—'],
-      ['Huile vendue',        d.vendu     ? Number(d.vendu).toLocaleString('fr-FR')     + ' bidons' : '—'],
-      ['À recouvrir',         d.recouvrir ? Number(d.recouvrir).toLocaleString('fr-FR') + ' bidons' : '—'],
-      ['Stock restant',       d.stocks    ? Number(d.stocks).toLocaleString('fr-FR')    + ' bidons' : '—'],
-      ['Retour mauvaise huile',d.retour   ? Number(d.retour).toLocaleString('fr-FR')    + ' bidons' : '—'],
+    section('🫙 Stock & Mouvements', [
+      ['Huile récupérée',  fmt(recupL)+' L = '+(recupL/L_PAR_BIDON).toFixed(1)+' bidons'],
+      ['Huile sortie',     sortie+' bidons = '+fmt(sortie*L_PAR_BIDON)+' L'],
+      ['Huile vendue',     fmt(totalBid)+' bidons = '+fmt(totalBid*L_PAR_BIDON)+' L'],
+      ['Retour',           retour ? retour+' bidons' : '—'],
+      ['Stock restant',    fmt(stocks)+' bidons = '+fmt(stocks*L_PAR_BIDON)+' L'],
     ]);
 
-    drawSection('💰 Finances', [
-      ['Recettes',   rec ? rec.toLocaleString('fr-FR') + ' FCFA' : '—'],
-      ['Dépenses',   dep ? dep.toLocaleString('fr-FR') + ' FCFA' : '—'],
-      ['SOLDE',      sol ? sol.toLocaleString('fr-FR') + ' FCFA' : '—'],
+    section('💵 Détail des ventes', [
+      ...recs.map(r=>[
+        (r.desc||'—')+' — '+fmt(r.prix)+' F/bidon × '+r.qte+' bid.',
+        fmt((+r.prix||0)*(+r.qte||0))+' FCFA'
+      ]),
+      ['TOTAL VENDU',    fmt(totalBid)+' bidons'],
+      ['TOTAL RECETTES', fmt(totalRec)+' FCFA'],
     ]);
+
+    if (recouv.length) {
+      section('📋 Créances à recouvrir', [
+        ...recouv.map(r=>[r.desc||'—', fmt(r.montant)+' FCFA']),
+        ['TOTAL À RECOUVRIR', fmt(totalRecouv)+' FCFA'],
+      ]);
+    }
+
+    section('💰 Dépenses', [
+      ...deps.map(d=>[d.desc||'—', fmt(d.montant)+' FCFA']),
+      ['TOTAL DÉPENSES', fmt(totalDep)+' FCFA'],
+    ]);
+
+    // Bilan
+    if (y > 230) { doc.addPage(); y = 20; }
+    doc.setFillColor(240,248,242); doc.roundedRect(M, y, W-M*2, 36, 3, 3, 'F');
+    doc.setDrawColor(...GREEN); doc.setLineWidth(0.5);
+    doc.roundedRect(M, y, W-M*2, 36, 3, 3, 'S');
+    doc.setTextColor(...GREEN); doc.setFontSize(8.5); doc.setFont('helvetica','bold');
+    doc.text('BILAN EN CAISSE — '+currentMois+' 2026', M+6, y+8);
+    const bilanRows = [
+      ['Total recettes', fmt(totalRec)+' FCFA', GREEN],
+      ['− Total dépenses', fmt(totalDep)+' FCFA', [184,50,50]],
+      ['− À recouvrir', fmt(totalRecouv)+' FCFA', [150,100,0]],
+    ];
+    bilanRows.forEach((r,i) => {
+      doc.setTextColor(...MUTED); doc.setFontSize(8); doc.setFont('helvetica','normal');
+      doc.text(r[0], M+6, y+16+i*6);
+      doc.setTextColor(...r[2]); doc.setFont('helvetica','bold');
+      doc.text(r[1], W-M-6, y+16+i*6, {align:'right'});
+    });
+    doc.setDrawColor(150,200,170); doc.line(M+6, y+32, W-M-6, y+32);
+    doc.setTextColor(...(caisse>=0?GREEN:[184,50,50]));
+    doc.setFontSize(10); doc.setFont('helvetica','bold');
+    doc.text('= '+fmt(caisse)+' FCFA', W-M-6, y+28, {align:'right'});
+    doc.setTextColor(...GREEN); doc.setFontSize(8);
+    doc.text('Solde net en caisse', M+6, y+28);
+    y += 44;
   }
 
-  // Signature block
-  y += 10;
-  doc.setFillColor(...CREAM);
-  doc.roundedRect(MARGIN, y, W - MARGIN*2, 28, 3, 3, 'F');
-  doc.setTextColor(...MUTED);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Signature :', MARGIN + 6, y + 8);
-  doc.setTextColor(...TEXT);
-  doc.setFont('helvetica', 'bold');
-  doc.text(currentUser, MARGIN + 30, y + 8);
-  doc.setDrawColor(...GREEN);
-  doc.setLineWidth(0.3);
-  doc.line(MARGIN + 6, y + 22, MARGIN + 80, y + 22);
-  doc.setTextColor(...MUTED);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Signature et date', MARGIN + 6, y + 27);
+  // Signature
+  if (y > 255) { doc.addPage(); y = 20; }
+  doc.setFillColor(...CREAM); doc.roundedRect(M, y, W-M*2, 26, 2, 2, 'F');
+  doc.setTextColor(...MUTED); doc.setFontSize(7.5); doc.setFont('helvetica','normal');
+  doc.text('Établi par :', M+6, y+8);
+  doc.setTextColor(...TEXT); doc.setFont('helvetica','bold');
+  doc.text(currentUser, M+28, y+8);
+  doc.setDrawColor(...GREEN); doc.setLineWidth(0.3);
+  doc.line(M+6, y+21, M+80, y+21);
+  doc.setTextColor(...MUTED); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('Signature', M+6, y+25.5);
 
   // Footer
-  doc.setFillColor(...GREEN);
-  doc.rect(0, 280, W, 17, 'F');
-  doc.setTextColor(...GOLD);
-  doc.setFontSize(7.5);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Palmeraie Dimako — Document généré le ' + dateStr, MARGIN, 291);
-  doc.setTextColor(120, 130, 120);
-  doc.text('Page 1/1', W - MARGIN, 291, { align: 'right' });
+  doc.setFillColor(...GREEN); doc.rect(0, 282, W, 15, 'F');
+  doc.setTextColor(...GOLD); doc.setFontSize(7);
+  doc.text('Palmeraie Dimako — '+dateStr, M, 291);
+  doc.setTextColor(120,130,120);
+  doc.text('Document confidentiel', W-M, 291, {align:'right'});
 
-  const filename = `Palmeraie_${currentZone}_${currentMois}_2026.pdf`;
-  doc.save(filename);
-  showToast('📄 PDF généré : ' + filename);
+  doc.save('Palmeraie_'+currentZone+'_'+currentMois+'_2026.pdf');
+  showToast('📄 PDF généré avec succès');
 }
 
 // ===== TOAST =====
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  clearTimeout(t._t);
-  t._t = setTimeout(() => { t.style.display = 'none'; }, 3500);
+  const t = $('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => { t.style.display = 'none'; }, 3500);
 }
 </script>
 </body>
