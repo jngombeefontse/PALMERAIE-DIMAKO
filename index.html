@@ -323,7 +323,7 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
           </div>
 
           <div class="field-group">
-            <label class="field-label">Nombre de fûts préparés</label>
+            <label class="field-label">Nombre de fûts obtenus</label>
             <div class="input-unit-wrap">
               <input type="number" class="field-input" id="p-futs" placeholder="0" min="0" oninput="calcProd()">
               <span class="unit-badge">fûts</span>
@@ -936,7 +936,7 @@ function genererPDF() {
 
     section('🌴 Récolte', [
       ['Régimes coupés',     (data.regimes||0)+' régimes'],
-      ['Fûts préparés',      futs+' fûts ('+ft+' L/fût)'],
+      ['Fûts obtenus',      futs+' fûts ('+ft+' L/fût)'],
       ['Huile obtenue',      fmt(huileL)+' L = '+bid+' bidons ('+L_PAR_BIDON+' L/bidon)'],
       ['Dons d\'huile',      donsL ? fmt(donsL)+' L = '+(donsL/L_PAR_BIDON).toFixed(2)+' bidons' : '—'],
     ]);
