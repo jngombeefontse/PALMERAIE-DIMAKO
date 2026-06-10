@@ -1,90 +1,76 @@
 # 🌴 Palmeraie Dimako — Guide de déploiement
 
-## Ce dossier contient 4 fichiers
-- `index.html` — le site web
-- `style.css` — le design
-- `app.js` — la logique
-- `config.js` — **vos clés Supabase** (à remplir)
-- `supabase_schema.sql` — la base de données (à exécuter une seule fois)
+## Fichiers du projet
+| Fichier | Rôle | Nécessaire ? |
+|---|---|---|
+| `index.html` | Le site complet (tout intégré) | ✅ Oui |
+| `config.js` | Vos clés Supabase | ✅ Oui |
+| `supabase_schema.sql` | Script base de données (une seule fois) | ✅ Une fois |
+| `app.js` | ❌ Fichier inutile — déjà intégré dans index.html | Non |
+| `style.css` | ❌ Fichier inutile — déjà intégré dans index.html | Non |
 
 ---
 
-## ÉTAPE 1 — Créer votre base de données Supabase (5 min)
+## ÉTAPE 1 — Base de données Supabase (déjà créée ✅)
 
-1. Allez sur **https://supabase.com** → cliquez **Start your project**
-2. Créez un compte gratuit (avec Google ou email)
-3. Cliquez **New project** → donnez un nom : `palmeraie-dimako`
-4. Choisissez un mot de passe de base → cliquez **Create new project**
-5. Attendez ~2 minutes que le projet se crée
+Votre projet Supabase est : `https://jefgsitnqzemmvpqsumg.supabase.co`
 
-### Exécuter le script SQL
-6. Dans votre projet Supabase, cliquez **SQL Editor** (icône base de données à gauche)
-7. Cliquez **New query**
-8. Copiez tout le contenu du fichier `supabase_schema.sql`
-9. Collez-le dans l'éditeur → cliquez **Run** (▶)
-10. Vous devez voir : `Schema créé avec succès`
+Si les tables ne sont pas encore créées :
+1. Allez sur **https://supabase.com** → votre projet
+2. Cliquez **SQL Editor** → **New query**
+3. Copiez-collez le contenu de `supabase_schema.sql` → cliquez **Run**
+4. Vous devez voir : `Schéma créé avec succès ✓`
 
-### Récupérer vos clés
-11. Allez dans **Settings** (roue dentée) → **API**
-12. Copiez :
-    - **Project URL** → ressemble à `https://abcdefgh.supabase.co`
-    - **anon public** (sous "Project API keys")
+### Voir vos données dans Supabase
+- **Table Editor** (menu gauche) → sélectionnez `saisies` ou `notes` → vue tableau
+- **SQL Editor** → tapez `SELECT * FROM saisies;` pour tout voir
+- **Exporter en CSV/Excel** : Table Editor → bouton **Export** (en haut à droite)
 
 ---
 
-## ÉTAPE 2 — Configurer le site (2 min)
-
-Ouvrez le fichier `config.js` et remplacez les valeurs :
-
-```js
-const SUPABASE_URL  = 'https://VOTRE_PROJET.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIs...';  // votre clé anon
-```
-
-Sauvegardez le fichier.
-
----
-
-## ÉTAPE 3 — Mettre en ligne avec GitHub + Netlify (10 min)
+## ÉTAPE 2 — Mettre en ligne avec GitHub + Netlify
 
 ### Sur GitHub
-1. Allez sur **https://github.com** → connectez-vous
-2. Cliquez le **+** en haut à droite → **New repository**
-3. Nom : `palmeraie-dimako` → cochez **Public** → cliquez **Create repository**
-4. Sur la page du repo, cliquez **uploading an existing file**
-5. Glissez-déposez les 4 fichiers : `index.html`, `style.css`, `app.js`, `config.js`
-6. Cliquez **Commit changes**
+1. Allez sur **https://github.com** → **New repository** → nom : `palmeraie-dimako`
+2. Uploadez **seulement 2 fichiers** : `index.html` et `config.js`
+3. Cliquez **Commit changes**
 
 ### Sur Netlify
-7. Allez sur **https://netlify.com** → **Sign up** (avec GitHub)
-8. Cliquez **Add new site** → **Import an existing project** → **GitHub**
-9. Sélectionnez votre repo `palmeraie-dimako`
-10. Laissez tous les paramètres par défaut → cliquez **Deploy site**
-11. Attendez ~1 minute → votre site est en ligne !
-
-Netlify vous donne une adresse du type : `https://palmeraie-dimako.netlify.app`
+4. Allez sur **https://netlify.com** → connectez-vous avec GitHub
+5. **Add new site** → **Import from Git** → sélectionnez `palmeraie-dimako`
+6. Cliquez **Deploy site** → votre site est en ligne en ~1 minute
 
 ---
 
-## Comptes de connexion
+## Utilisation du site
 
-| Identifiant | Mot de passe | Accès |
-|---|---|---|
-| admin | admin123 | Tout le site |
-| odette | odette123 | Dashboard + Boutique Dimako |
-| alain | alain123 | Dashboard + Boutique Bertoua |
-| presseur | press123 | Dashboard + Zone de production |
+### Connexion
+Chaque employé entre son **prénom** et choisit sa zone :
+- 🌴 Zone de production
+- 🛒 Boutique Dimako
+- 🏪 Boutique Bertoua
+- 📓 Bloc-notes (accessible à tous)
+
+### Bloc-notes journalier
+- Chaque employé note ses observations du jour
+- À la fin du mois → **"Rapport PDF"** génère un PDF de toutes les notes du mois
+
+### Générer un PDF
+1. Sélectionner le mois dans la barre de mois
+2. Remplir les informations
+3. Cliquer **Enregistrer** → données sauvegardées en base
+4. Cliquer **Générer PDF** → téléchargement automatique
 
 ---
 
 ## ❓ Problèmes fréquents
 
-**"Configurez config.js"** → Vous n'avez pas encore mis vos clés Supabase dans config.js
+**Données non enregistrées en ligne** → Vérifiez que `config.js` contient les bonnes clés
 
-**"Erreur de connexion"** → Vérifiez que l'URL et la clé sont correctement copiées (pas d'espace)
+**URL incorrecte** → L'URL doit être `https://xxx.supabase.co` (SANS `/rest/v1/` à la fin)
 
-**Les données ne s'affichent pas** → Vérifiez que le script SQL a bien été exécuté dans Supabase
+**PDF avec mauvaise mise en page** → Vérifiez que vous utilisez la dernière version de `index.html`
 
 ---
 
-*Site développé pour la gestion de la Palmeraie Dimako — 2026*
+*Palmeraie Dimako — 2026*
