@@ -6,7 +6,9 @@
 <title>Palmeraie Dimako</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root{
   --green:#0D3B2E;--green-mid:#1A6B4A;--green-light:#2E9E6E;
@@ -157,6 +159,10 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
 .fut-section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;
   letter-spacing:.1em;color:var(--muted);margin-bottom:10px}
 .fut-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
+.fut-dyn-row{display:grid;grid-template-columns:140px 120px 90px 34px;gap:8px;align-items:center}
+.fut-dyn-row select,.fut-dyn-row input{margin:0}
+.fut-dyn-row{display:grid;grid-template-columns:160px 130px 1fr 34px;gap:8px;align-items:center}
+.fut-dyn-row select,.fut-dyn-row input{margin:0}
 
 /* DATE RANGE */
 .date-range-row{display:grid;grid-template-columns:1fr 1fr;gap:13px;grid-column:1/-1;
@@ -361,31 +367,36 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
 
         <!-- FUTS section -->
         <div class="fut-section" style="grid-column:1/-1">
-          <div class="fut-section-title">Fûts obtenus (200 L et/ou 250 L)</div>
+          <div class="fut-section-title">Fûts de noix préparés (information seule — pas de conversion)</div>
+          <div class="fut-row" style="grid-template-columns:1fr 1fr">
+            <div>
+              <label class="fl2">Nombre de fûts de noix préparés</label>
+              <div class="iuw">
+                <input type="number" class="fi2" id="p-futs-noix" placeholder="0" min="0">
+                <span class="ub">fûts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fut-section" style="grid-column:1/-1">
+          <div class="fut-section-title">Fûts d'huile obtenus — choisissez le type et entrez la quantité</div>
+          <div id="p-futs-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+          <button class="badd" onclick="addFutRow()" style="margin-bottom:10px">+ Ajouter un type de fût</button>
           <div class="fut-row">
             <div>
-              <label class="fl2">Nbre de fûts de 200 L</label>
-              <div class="iuw">
-                <input type="number" class="fi2" id="p-futs200" placeholder="0" min="0" oninput="calcProd()">
-                <span class="ub">fûts</span>
-              </div>
-              <span class="conv" id="futs200-l">= 0 L</span>
-            </div>
-            <div>
-              <label class="fl2">Nbre de fûts de 250 L</label>
-              <div class="iuw">
-                <input type="number" class="fi2" id="p-futs250" placeholder="0" min="0" oninput="calcProd()">
-                <span class="ub">fûts</span>
-              </div>
-              <span class="conv" id="futs250-l">= 0 L</span>
-            </div>
-            <div>
-              <label class="fl2">Huile totale obtenue</label>
+              <label class="fl2">Total huile obtenue (auto)</label>
               <div class="iuw">
                 <input type="number" class="fi2 ro" id="p-huile" placeholder="0" readonly>
                 <span class="ub">litres</span>
               </div>
-              <span class="conv" id="huile-bid">= 0 bidons</span>
+            </div>
+            <div>
+              <label class="fl2">Équivalent bidons (auto)</label>
+              <div class="iuw">
+                <input type="number" class="fi2 ro" id="p-huile-bid" placeholder="0" readonly>
+                <span class="ub">bidons</span>
+              </div>
             </div>
           </div>
         </div>
@@ -591,9 +602,72 @@ let DATA     = JSON.parse(localStorage.getItem('pdimako_v4')||'{}');
 let NOTES    = JSON.parse(localStorage.getItem('pdimako_notes')||'[]');
 
 // ===== SUPABASE INIT =====
+// ===== EMAIL NOTIFICATION =====
+// ─────────────────────────────────────────────────────────────
+// ÉTAPES EMAILJS (une seule fois) :
+// 1. Créez un compte sur https://www.emailjs.com (gratuit)
+// 2. Email Services → Add New Service → Yahoo Mail → notez le Service ID
+// 3. Email Templates → Create Template → body={{message}} → notez le Template ID
+// 4. Account → General → copiez la Public Key
+// Remplacez les 3 valeurs ci-dessous puis re-uploadez index.html sur GitHub
+// ─────────────────────────────────────────────────────────────
+const EMAILJS_PUBLIC_KEY  = 'r5dbSS6DuqN9bm_-z';    // ex: 'A1B2C3D4E5F6G7H8'
+const EMAILJS_SERVICE_ID  = 'service_um28yik';   // ex: 'service_abc123'
+const EMAILJS_TEMPLATE_ID = 'template_ipe20vc';  // ex: 'template_xyz789'
+const EMAIL_DEST          = 'jngombeefontse@yahoo.fr';
+const WHATSAPP_NUM        = '33760495299';
+
+function initEmailJS() {
+  try {
+    if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('VOTRE')) {
+      emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+    }
+  } catch(e) { console.warn('EmailJS init error:', e); }
+}
+
+async function sendEmailNotif(mois, zone, resume) {
+  // Prepare message
+  const sujet  = 'Palmeraie Dimako — Rapport ' + zone + ' ' + mois + ' ' + ANNEE;
+  const corps  = [
+    'Bonjour,',
+    '',
+    'Un nouveau rapport a été généré sur Palmeraie Dimako.',
+    '',
+    'Zone      : ' + zone,
+    'Mois      : ' + mois + ' ' + ANNEE,
+    'Saisi par : ' + cUser,
+    'Résumé    : ' + resume,
+    '',
+    'Connectez-vous sur le site pour consulter le détail complet.',
+    '',
+    'Cordialement,',
+    'Palmeraie Dimako — Système de gestion',
+  ].join('\n');
+
+  // Send via EmailJS (fully automatic, no user action needed)
+  if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('VOTRE')) {
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_email: EMAIL_DEST,
+        subject:  sujet,
+        message:  corps,
+        from_name:'Palmeraie Dimako',
+        saisi_par: cUser,
+        zone_mois: zone + ' — ' + mois + ' ' + ANNEE,
+      });
+      toast('📧 Email envoyé à ' + EMAIL_DEST + ' ✓');
+    } catch(e) {
+      console.warn('EmailJS send error:', e);
+      toast('⚠️ Email non envoyé — vérifiez la config EmailJS');
+    }
+  } else {
+    console.info('EmailJS non configuré — email non envoyé');
+  }
+}
+
 function initDB() {
   try {
-    if (SUPABASE_URL.includes('VOTRE_URL') || SUPABASE_ANON.includes('VOTRE_CLE')) {
+    if (!SUPABASE_URL || SUPABASE_URL.includes('VOTRE_URL') || !SUPABASE_ANON || SUPABASE_ANON.includes('VOTRE_CLE')) {
       sync('err','Local uniquement');
       document.getElementById('cfgBanner').style.display = 'block';
       return;
@@ -656,7 +730,10 @@ function persistNotes() { localStorage.setItem('pdimako_notes', JSON.stringify(N
 // ===== UTILS =====
 const $   = id => document.getElementById(id);
 const fv  = id => parseFloat($(id)?.value)||0;
-const fmt = n  => Number(n||0).toLocaleString('fr-FR');
+const fmt = n => {
+  const num = Math.round(Number(n||0));
+  return String(num).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+};
 
 // ===== ACCUEIL =====
 function selectZone(z) {
@@ -770,18 +847,83 @@ function selMoisB(m) {
 }
 
 // ===== PROD CALCUL =====
-function calcProd() {
-  const f200 = fv('p-futs200'), f250 = fv('p-futs250');
-  const l200 = f200*200, l250 = f250*250;
-  const total = l200+l250;
-  const bids  = Math.floor(total/LPB);
-  const donsL = fv('p-dons');
+// Litres options 0.5 to 250
+const LITRES_OPTS = [];
+for(let v=0.5;v<=250;v+=0.5) LITRES_OPTS.push(v);
 
-  $('p-huile').value = total;
-  $('futs200-l').textContent  = `= ${fmt(l200)} L`;
-  $('futs250-l').textContent  = `= ${fmt(l250)} L`;
-  $('huile-bid').textContent  = `= ${bids} bidons (${LPB} L/bidon)`;
-  $('dons-bid').textContent   = `= ${(donsL/LPB).toFixed(2)} bidons`;
+function addFutRow(type='200', litres=200, qty=0) {
+  const list = $('p-futs-list');
+  const row  = document.createElement('div');
+  row.className = 'fut-dyn-row';
+
+  // Type select: 200L, 250L, Bidon
+  const selType = document.createElement('select');
+  selType.className = 'fi2';
+  [['200','Fût 200 L'],['250','Fût 250 L'],['bidon','Bidon 21 L']].forEach(([v,l])=>{
+    const o=document.createElement('option'); o.value=v; o.textContent=l;
+    if(v===type) o.selected=true;
+    selType.appendChild(o);
+  });
+
+  // Litres select (0.5 to 250)
+  const selL = document.createElement('select');
+  selL.className = 'fi2';
+  LITRES_OPTS.forEach(v=>{
+    const o=document.createElement('option');
+    o.value=v; o.textContent=v+' L';
+    if(v===litres) o.selected=true;
+    selL.appendChild(o);
+  });
+
+  // Qty input
+  const inpQty = document.createElement('input');
+  inpQty.type='number'; inpQty.className='fi2';
+  inpQty.placeholder='Quantité'; inpQty.min='0'; inpQty.value=qty||'';
+
+  // Label auto
+  const lbl = document.createElement('span');
+  lbl.style='font-size:.75rem;color:var(--muted);font-family:DM Mono,monospace';
+
+  // Remove btn
+  const rm = document.createElement('button');
+  rm.className='brm'; rm.textContent='×';
+  rm.onclick=()=>{row.remove();calcProd();};
+
+  // Update label & auto-set litres based on type
+  function syncType() {
+    const t = selType.value;
+    if(t==='200') { selL.value='200'; }
+    else if(t==='250') { selL.value='250'; }
+    else if(t==='bidon') { selL.value='21'; }
+    calcProd();
+  }
+  selType.onchange = syncType;
+  selL.onchange    = ()=>calcProd();
+  inpQty.oninput   = ()=>calcProd();
+
+  row.appendChild(selType);
+  row.appendChild(selL);
+  row.appendChild(inpQty);
+  row.appendChild(rm);
+  list.appendChild(row);
+  calcProd();
+}
+
+function getFuts() {
+  const rows = document.querySelectorAll('#p-futs-list .fut-dyn-row');
+  return [...rows].map(r=>{
+    const sels = r.querySelectorAll('select');
+    const qty  = parseFloat(r.querySelector('input').value)||0;
+    return { type:sels[0].value, litres:parseFloat(sels[1].value)||0, qty };
+  }).filter(f=>f.qty>0);
+}
+
+function calcProd() {
+  const futs  = getFuts();
+  const total = futs.reduce((s,f)=> s + f.litres*f.qty, 0);
+  const bids  = Math.floor(total/LPB);
+  $('p-huile').value     = total;
+  $('p-huile-bid').value = bids;
   calcDepTot('p');
 }
 
@@ -953,13 +1095,19 @@ function updateBilan() {
 
 // ===== LOAD DATA =====
 function loadProd(d) {
-  $('p-date-debut').value = d.date_debut||'';
-  $('p-date-fin').value   = d.date_fin  ||'';
-  $('p-regimes').value    = d.regimes   ||'';
-  $('p-futs200').value    = d.futs200   ||'';
-  $('p-futs250').value    = d.futs250   ||'';
-  $('p-dons').value       = d.dons      ||'';
-  $('p-obs').value        = d.obs       ||'';
+  $('p-date-debut').value  = d.date_debut||'';
+  $('p-date-fin').value    = d.date_fin  ||'';
+  $('p-regimes').value     = d.regimes   ||'';
+  $('p-futs-noix').value   = d.futs_noix ||'';
+  $('p-dons').value        = d.dons      ||'';
+  $('p-obs').value         = d.obs       ||'';
+  // Load dynamic fût rows
+  $('p-futs-list').innerHTML='';
+  if (d.futs && d.futs.length) {
+    d.futs.forEach(f=>addFutRow(f.type, f.litres, f.qty));
+  } else {
+    addFutRow('200',200,0);
+  }
   loadDeps('p', d.depenses);
 }
 
@@ -979,14 +1127,16 @@ async function save(pg) {
     if (!cMoisP) { toast('Sélectionnez un mois ❗'); return; }
     mois = cMoisP;
     const zone = cZone;
+    const futsData = getFuts();
     row = { annee:ANNEE, mois, zone,
       date_debut:$('p-date-debut').value, date_fin:$('p-date-fin').value,
-      regimes:fv('p-regimes'), futs200:fv('p-futs200'), futs250:fv('p-futs250'),
+      regimes:fv('p-regimes'), futs_noix:fv('p-futs-noix'),
+      futs:JSON.stringify(futsData),
       huile:fv('p-huile'), dons:fv('p-dons'), obs:$('p-obs').value,
       depenses:JSON.stringify(getDeps('p'))
     };
     if (!DATA[zone]) DATA[zone]={};
-    DATA[zone][mois] = {...row, depenses:getDeps('p')};
+    DATA[zone][mois] = {...row, futs:futsData, depenses:getDeps('p')};
   } else {
     if (!cMoisB) { toast('Sélectionnez un mois ❗'); return; }
     mois = cMoisB;
@@ -1007,8 +1157,9 @@ async function save(pg) {
 
 function clearForm(pg) {
   if (pg==='production') {
-    ['p-date-debut','p-date-fin','p-regimes','p-futs200','p-futs250','p-huile','p-dons','p-obs']
-      .forEach(id=>{$(id).value='';});
+    ['p-date-debut','p-date-fin','p-regimes','p-futs-noix','p-huile','p-huile-bid','p-dons','p-obs']
+      .forEach(id=>{if($(id))$(id).value='';});
+    $('p-futs-list').innerHTML=''; addFutRow('200',200,0);
     $('p-dep-list').innerHTML=''; addDep('p');
     calcProd();
   } else {
@@ -1090,30 +1241,39 @@ function genRapportNotes() {
 function genPDF(pg) {
   if (pg==='production') {
     const mois = cMoisP; if (!mois) { toast('Sélectionnez un mois ❗'); return; }
-    const d = (DATA[cZone]||{})[mois]||{};
-    const f200=+d.futs200||0, f250=+d.futs250||0;
-    const l200=f200*200, l250=f250*250, total=l200+l250;
-    const bids=Math.floor(total/LPB), donsL=+d.dons||0;
-    const deps=d.depenses||[], totDep=deps.reduce((s,x)=>s+(+x.montant||0),0);
+    const d    = (DATA[cZone]||{})[mois]||{};
+    const futs = d.futs||[];
+    const total = futs.reduce((s,f)=>s+f.litres*f.qty,0);
+    const bids  = Math.floor(total/LPB);
+    const donsL = +d.dons||0;
+    const deps  = d.depenses||[], totDep=deps.reduce((s,x)=>s+(+x.montant||0),0);
+
+    // PDF rows for futs — label only: type + quantity, no litre conversion shown
+    const futRows = futs.filter(f=>f.qty>0).map(f=>{
+      if (f.type==='bidon') return ['Bidons obtenus', fmt(f.qty)+' bidons'];
+      return ['Futs '+f.litres+' L obtenus', fmt(f.qty)+' futs'];
+    });
 
     buildPDF(mois,'Zone de production',[
-      {title:'📅 Période de récolte', rows:[
-        ['Date de début', d.date_debut||'—'],
+      {title:'PERIODE DE RECOLTE', rows:[
+        ['Date de debut', d.date_debut||'—'],
         ['Date de fin',   d.date_fin  ||'—'],
       ]},
-      {title:'🌴 Récolte', rows:[
-        ['Régimes coupés',    (d.regimes||0)+' régimes'],
-        ['Fûts 200 L obtenus', f200+' fûts = '+fmt(l200)+' L'],
-        ['Fûts 250 L obtenus', f250+' fûts = '+fmt(l250)+' L'],
-        ['Huile totale obtenue', fmt(total)+' L = '+bids+' bidons ('+LPB+' L/bidon)'],
-        ['Dons d\'huile',      donsL ? fmt(donsL)+' L = '+(donsL/LPB).toFixed(2)+' bidons' : '—'],
+      {title:'RECOLTE', rows:[
+        ['Regimes coupes',    fmt(d.regimes||0)+' regimes'],
+        ...(+d.futs_noix>0 ? [['Futs de noix prepares', fmt(d.futs_noix)+' futs']] : []),
+        ...futRows,
+        ['Litres obtenus',   fmt(total)+' L'],
+        ['Equivalent bidons', fmt(bids)+' bidons'],
+        ...(donsL>0 ? [['Dons huile', fmt(donsL)+' L']] : []),
       ]},
-      {title:'💰 Dépenses', rows:[
-        ...deps.map(d=>[d.desc||'—', fmt(d.montant)+' FCFA']),
-        ['TOTAL DÉPENSES', fmt(totDep)+' FCFA'],
+      {title:'DEPENSES', rows:[
+        ...deps.map(dep=>[dep.desc||'—', fmt(dep.montant)+' FCFA']),
+        ['TOTAL DEPENSES', fmt(totDep)+' FCFA'],
       ]},
-      ...(d.obs?[{title:'📝 Observations', obs:d.obs}]:[]),
+      ...(d.obs ? [{title:'OBSERVATIONS', obs:d.obs}] : []),
     ]);
+    sendEmailNotif(mois, 'Zone de production', fmt(totDep)+' FCFA');
   } else {
     const mois = cMoisB; if (!mois) { toast('Sélectionnez un mois ❗'); return; }
     const d    = (DATA[cZone]||{})[mois]||{};
@@ -1178,17 +1338,18 @@ function buildPDF(mois, zoneLabel, sections) {
   doc.line(M,34,W-M,34);
 
   y = 44;
-  doc.setFillColor(...CR); doc.roundedRect(M,y,W-M*2,13,2,2,'F');
-  doc.setTextColor(...GR); doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('RAPPORT — '+mois+' '+ANNEE, M+5, y+9);
-  y += 20;
+  doc.setFillColor(...CR); doc.roundedRect(M,y,W-M*2,16,3,3,'F');
+  doc.setDrawColor(...GR); doc.setLineWidth(0.3); doc.roundedRect(M,y,W-M*2,16,3,3,'S');
+  doc.setTextColor(...GR); doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text('RAPPORT — '+mois+' '+ANNEE, M+6, y+11);
+  y += 24;
 
   function sec(title, rows, obs, bilan) {
-    if (y > 248) { doc.addPage(); y=18; }
-    doc.setFillColor(...GR); doc.rect(M,y,W-M*2,7.5,'F');
-    doc.setTextColor(...WH); doc.setFontSize(7); doc.setFont('helvetica','bold');
-    doc.text(title.replace(/[^\x00-\x7F]/g,'').replace(/  +/g,' ').trim().toUpperCase(), M+3, y+5.2);
-    y += 7.5;
+    if (y > 255) { doc.addPage(); y=18; }
+    doc.setFillColor(...GR); doc.rect(M,y,W-M*2,9,'F');
+    doc.setTextColor(...WH); doc.setFontSize(8); doc.setFont('helvetica','bold');
+    const cleanTitle = title.replace(/[\u{1F300}-\u{1FFFF}\u{2600}-\u{27FF}]/gu,'').replace(/\s+/g,' ').trim().toUpperCase(); doc.text(cleanTitle, M+4, y+6.2);
+    y += 9;
 
     if (bilan) {
       doc.setFillColor(240,248,242); doc.rect(M,y,W-M*2,30,'F');
@@ -1201,37 +1362,39 @@ function buildPDF(mois, zoneLabel, sections) {
         doc.setTextColor(...r[2]); doc.setFont('helvetica','bold');
         doc.text(r[1], W-M-4, y+7+i*6, {align:'right'});
       });
-      doc.setDrawColor(150,200,170); doc.line(M+4,y+26,W-M-4,y+26);
+      doc.setDrawColor(150,200,170); doc.line(M+4,y+28,W-M-4,y+28);
       doc.setTextColor(...(bilan.caisse>=0?GR:[184,50,50]));
-      doc.setFontSize(10); doc.setFont('helvetica','bold');
-      doc.text('= '+fmt(bilan.caisse)+' FCFA', W-M-4, y+22, {align:'right'});
-      doc.setTextColor(...GR); doc.setFontSize(7.5);
-      doc.text('Solde net en caisse', M+4, y+22);
-      doc.setDrawColor(...GR); doc.setLineWidth(0.2); doc.rect(M,y,W-M*2,30,'S');
-      y += 35; return;
+      doc.setFontSize(11); doc.setFont('helvetica','bold');
+      doc.text(fmt(bilan.caisse)+' FCFA', W-M-4, y+24, {align:'right'});
+      doc.setTextColor(...GR); doc.setFontSize(8);
+      doc.text('Solde net en caisse :', M+4, y+24);
+      doc.setDrawColor(...GR); doc.setLineWidth(0.3); doc.rect(M,y,W-M*2,34,'S');
+      y += 40; return;
     }
 
     if (obs) {
-      doc.setFillColor(...CR); doc.rect(M,y,W-M*2,22,'F');
+      const obsLines = doc.splitTextToSize(obs, W-M*2-8);
+      const obsH = Math.max(14, obsLines.length * 5 + 8);
+      if (y + obsH > 270) { doc.addPage(); y = 18; }
+      doc.setFillColor(...CR); doc.rect(M,y,W-M*2,obsH,'F');
       doc.setTextColor(...TX); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
-      const lines = doc.splitTextToSize(obs, W-M*2-6);
-      doc.text(lines.slice(0,4), M+3, y+6);
-      doc.setDrawColor(200,210,200); doc.setLineWidth(0.2); doc.rect(M,y,W-M*2,22,'S');
-      y += 27; return;
+      doc.text(obsLines, M+4, y+6);
+      doc.setDrawColor(200,210,200); doc.setLineWidth(0.2); doc.rect(M,y,W-M*2,obsH,'S');
+      y += obsH + 5; return;
     }
 
     rows.forEach((row,i)=>{
       if (y > 270) { doc.addPage(); y=18; }
-      doc.setFillColor(...(i%2===0?WH:CR)); doc.rect(M,y,W-M*2,7.5,'F');
-      doc.setTextColor(...MU); doc.setFontSize(8); doc.setFont('helvetica','normal');
-      doc.text(String(row[0]).substring(0,55), M+3, y+5.2);
+      doc.setFillColor(...(i%2===0?WH:CR)); doc.rect(M,y,W-M*2,8.5,'F');
+      doc.setTextColor(...MU); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+      doc.text(String(row[0]).substring(0,60), M+4, y+5.8);
       doc.setTextColor(...TX); doc.setFont('helvetica','bold');
-      doc.text(String(row[1]||'—'), W-M-3, y+5.2, {align:'right'});
-      y += 7.5;
+      doc.text(String(row[1]||'—'), W-M-4, y+5.8, {align:'right'});
+      y += 8.5;
     });
     doc.setDrawColor(200,210,200); doc.setLineWidth(0.2);
-    doc.rect(M,y-7.5*rows.length,W-M*2,7.5*rows.length,'S');
-    y += 5;
+    doc.rect(M,y-8.5*rows.length,W-M*2,8.5*rows.length,'S');
+    y += 6;
   }
 
   sections.forEach(s => sec(s.title, s.rows, s.obs, s.bilan));
@@ -1254,8 +1417,56 @@ function buildPDF(mois, zoneLabel, sections) {
   doc.setTextColor(120,130,120);
   doc.text('Document confidentiel', W-M, 291, {align:'right'});
 
-  doc.save('Palmeraie_'+cZone+'_'+mois+'_'+ANNEE+'.pdf');
-  toast('📄 PDF généré');
+  const filename = 'Palmeraie_'+cZone+'_'+mois+'_'+ANNEE+'.pdf';
+  doc.save(filename);
+  toast('📄 PDF généré — envoi en cours...');
+  envoyerNotification(mois, zoneLabel, filename, doc);
+}
+
+// ===== ENVOI NOTIFICATION =====
+const EMAIL_DEST    = 'jngombeefontse@yahoo.fr';
+const WHATSAPP_NUM  = '+33760495299';
+
+async function envoyerNotification(mois, zone, filename, doc) {
+  // 1. WhatsApp via wa.me link (opens in new tab with pre-filled message)
+  const msgWA = encodeURIComponent(
+    '🌴 *Palmeraie Dimako*\n' +
+    'Nouveau rapport généré\n' +
+    'Zone : ' + zone + '\n' +
+    'Mois : ' + mois + ' ' + ANNEE + '\n' +
+    'Saisi par : ' + cUser + '\n' +
+    'Fichier : ' + filename
+  );
+  // Show modal with options
+  showNotifModal(mois, zone, filename, msgWA, doc);
+}
+
+function showNotifModal(mois, zone, filename, msgWA, doc) {
+  const existing = document.getElementById('notif-modal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'notif-modal';
+  modal.style = 'position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:18px;padding:28px;max-width:400px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.35)">
+      <div style="text-align:center;font-size:2.4rem;margin-bottom:8px">📄</div>
+      <h3 style="text-align:center;font-family:'Playfair Display',serif;color:#0D3B2E;margin-bottom:4px;font-size:1.2rem">PDF généré !</h3>
+      <p style="text-align:center;font-size:.8rem;color:#6B7A65;margin-bottom:6px">${filename}</p>
+      <p style="text-align:center;font-size:.78rem;color:#27AE60;margin-bottom:18px;font-weight:600">📧 Email automatique envoyé à ${EMAIL_DEST}</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="https://wa.me/${WHATSAPP_NUM}?text=${msgWA}" target="_blank"
+          style="display:flex;align-items:center;gap:10px;background:#25D366;color:#fff;border-radius:10px;padding:12px 16px;text-decoration:none;font-weight:600;font-size:.9rem">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M5.85 20.01l.5-1.79A8.67 8.67 0 0 1 3.5 12C3.5 7.306 7.306 3.5 12 3.5S20.5 7.306 20.5 12 16.694 20.5 12 20.5a8.67 8.67 0 0 1-4.4-1.19L5.85 20.01zM12 1.5C6.201 1.5 1.5 6.201 1.5 12c0 1.87.487 3.626 1.34 5.15L1.5 22.5l5.487-1.316A10.45 10.45 0 0 0 12 22.5c5.799 0 10.5-4.701 10.5-10.5S17.799 1.5 12 1.5z"/></svg>
+          Envoyer aussi sur WhatsApp
+        </a>
+        <button onclick="document.getElementById('notif-modal').remove()"
+          style="background:#0D3B2E;color:#F0C85A;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif">
+          Fermer
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.onclick = e => { if(e.target===modal) modal.remove(); };
 }
 
 // ===== PDF NOTES =====
@@ -1294,10 +1505,11 @@ function genNotePDF(mois, notes) {
     doc.text('par '+n.auteur, W-M-3, y+5.5, {align:'right'});
     y+=8;
     const lines = doc.splitTextToSize(n.texte||'', W-M*2-6);
-    const h = Math.max(10, lines.length*5+4);
+    const h = Math.max(12, lines.length*5.5+6);
+    if (y + h > 270) { doc.addPage(); y = 18; }
     doc.setFillColor(...CR); doc.rect(M,y,W-M*2,h,'F');
-    doc.setTextColor(...TX); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
-    doc.text(lines, M+3, y+5);
+    doc.setTextColor(...TX); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text(lines, M+4, y+6);
     doc.setDrawColor(200,210,200); doc.setLineWidth(0.2); doc.rect(M,y,W-M*2,h,'S');
     y+=h+6;
   });
@@ -1306,8 +1518,10 @@ function genNotePDF(mois, notes) {
   doc.setTextColor(...GO); doc.setFontSize(7);
   doc.text('Palmeraie Dimako — Rapport généré le '+ds, M, 291);
 
-  doc.save('Palmeraie_Notes_'+mois+'_'+ANNEE+'.pdf');
+  const fnNotes = 'Palmeraie_Notes_'+mois+'_'+ANNEE+'.pdf';
+  doc.save(fnNotes);
   toast('📄 Rapport notes PDF généré');
+  showNotifModal(mois, 'Bloc-notes', fnNotes, encodeURIComponent('🌴 Palmeraie Dimako\nRapport notes — '+mois+' '+ANNEE+'\nSaisi par : '+cUser), doc);
 }
 
 // ===== TOAST =====
@@ -1318,6 +1532,7 @@ function toast(msg) {
 
 // INIT
 initDB();
+initEmailJS();
 </script>
 </body>
 </html>
