@@ -380,7 +380,7 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
         </div>
 
         <div class="fut-section" style="grid-column:1/-1">
-          <div class="fut-section-title">Fûts d'huile obtenus — choisissez le type et entrez la quantité</div>
+          <div class="fut-section-title">Huile obtenue — choisissez le type et entrez la quantité</div>
           <div id="p-futs-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
           <button class="badd" onclick="addFutRow()" style="margin-bottom:10px">+ Ajouter un type de fût</button>
           <div class="fut-row">
@@ -611,9 +611,9 @@ let NOTES    = JSON.parse(localStorage.getItem('pdimako_notes')||'[]');
 // 4. Account → General → copiez la Public Key
 // Remplacez les 3 valeurs ci-dessous puis re-uploadez index.html sur GitHub
 // ─────────────────────────────────────────────────────────────
-const EMAILJS_PUBLIC_KEY  = 'r5dbSS6DuqN9bm_-z';    // ex: 'A1B2C3D4E5F6G7H8'
-const EMAILJS_SERVICE_ID  = 'service_um28yik';   // ex: 'service_abc123'
-const EMAILJS_TEMPLATE_ID = 'template_ipe20vc';  // ex: 'template_xyz789'
+const EMAILJS_PUBLIC_KEY  = 'r5dbSS6DuqN9bm_-z';
+const EMAILJS_SERVICE_ID  = 'service_um28yik';
+const EMAILJS_TEMPLATE_ID = 'template_ipe20vc';
 const EMAIL_DEST          = 'jngombeefontse@yahoo.fr';
 const WHATSAPP_NUM        = '33760495299';
 
@@ -851,7 +851,7 @@ function selMoisB(m) {
 const LITRES_OPTS = [];
 for(let v=0.5;v<=250;v+=0.5) LITRES_OPTS.push(v);
 
-function addFutRow(type='200', litres=200, qty=0) {
+function addFutRow(type='fut', litres=200, qty=0) {
   const list = $('p-futs-list');
   const row  = document.createElement('div');
   row.className = 'fut-dyn-row';
@@ -859,7 +859,7 @@ function addFutRow(type='200', litres=200, qty=0) {
   // Type select: 200L, 250L, Bidon
   const selType = document.createElement('select');
   selType.className = 'fi2';
-  [['200','Fût 200 L'],['250','Fût 250 L'],['bidon','Bidon 21 L']].forEach(([v,l])=>{
+  [['fut','Fût'],['bidon','Bidon']].forEach(([v,l])=>{
     const o=document.createElement('option'); o.value=v; o.textContent=l;
     if(v===type) o.selected=true;
     selType.appendChild(o);
@@ -889,11 +889,10 @@ function addFutRow(type='200', litres=200, qty=0) {
   rm.className='brm'; rm.textContent='×';
   rm.onclick=()=>{row.remove();calcProd();};
 
-  // Update label & auto-set litres based on type
+  // Update label & auto-set default litres based on type (user can still change)
   function syncType() {
     const t = selType.value;
-    if(t==='200') { selL.value='200'; }
-    else if(t==='250') { selL.value='250'; }
+    if(t==='fut')        { selL.value='200'; }
     else if(t==='bidon') { selL.value='21'; }
     calcProd();
   }
@@ -1106,7 +1105,7 @@ function loadProd(d) {
   if (d.futs && d.futs.length) {
     d.futs.forEach(f=>addFutRow(f.type, f.litres, f.qty));
   } else {
-    addFutRow('200',200,0);
+    addFutRow('fut',200,0);
   }
   loadDeps('p', d.depenses);
 }
@@ -1159,7 +1158,7 @@ function clearForm(pg) {
   if (pg==='production') {
     ['p-date-debut','p-date-fin','p-regimes','p-futs-noix','p-huile','p-huile-bid','p-dons','p-obs']
       .forEach(id=>{if($(id))$(id).value='';});
-    $('p-futs-list').innerHTML=''; addFutRow('200',200,0);
+    $('p-futs-list').innerHTML=''; addFutRow('fut',200,0);
     $('p-dep-list').innerHTML=''; addDep('p');
     calcProd();
   } else {
@@ -1248,11 +1247,13 @@ function genPDF(pg) {
     const donsL = +d.dons||0;
     const deps  = d.depenses||[], totDep=deps.reduce((s,x)=>s+(+x.montant||0),0);
 
-    // PDF rows for futs — label only: type + quantity, no litre conversion shown
-    const futRows = futs.filter(f=>f.qty>0).map(f=>{
-      if (f.type==='bidon') return ['Bidons obtenus', fmt(f.qty)+' bidons'];
-      return ['Futs '+f.litres+' L obtenus', fmt(f.qty)+' futs'];
-    });
+    // PDF rows for futs — merge by type (fut/bidon), label only, no litre conversion shown
+    const totalFuts   = futs.filter(f=>f.type==='fut').reduce((s,f)=>s+f.qty,0);
+    const totalBidons = futs.filter(f=>f.type==='bidon').reduce((s,f)=>s+f.qty,0);
+    const futRows = [
+      ...(totalFuts>0   ? [['Fûts obtenus',   fmt(totalFuts)+' fûts']]   : []),
+      ...(totalBidons>0 ? [['Bidons obtenus', fmt(totalBidons)+' bidons']] : []),
+    ];
 
     buildPDF(mois,'Zone de production',[
       {title:'PERIODE DE RECOLTE', rows:[
@@ -1424,11 +1425,11 @@ function buildPDF(mois, zoneLabel, sections) {
 }
 
 // ===== ENVOI NOTIFICATION =====
-const EMAIL_DEST    = 'jngombeefontse@yahoo.fr';
-const WHATSAPP_NUM  = '+33760495299';
-
 async function envoyerNotification(mois, zone, filename, doc) {
-  // 1. WhatsApp via wa.me link (opens in new tab with pre-filled message)
+  // 1. Email automatique via EmailJS
+  sendEmailNotif(mois, zone, 'Fichier : ' + filename);
+
+  // 2. WhatsApp via wa.me link (opens in new tab with pre-filled message)
   const msgWA = encodeURIComponent(
     '🌴 *Palmeraie Dimako*\n' +
     'Nouveau rapport généré\n' +
