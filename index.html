@@ -584,7 +584,7 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
 // CONFIG SUPABASE — remplacez par vos clés
 // =====================================================
 const SUPABASE_URL  = 'https://jefgsitnqzemmvpqsumg.supabase.co';
-const SUPABASE_ANON = 'sb_publishable_c9r7zd2Q3mTZLLEO1ChHmQ_5o_x_cVk';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZmdzaXRucXplbW12cHFzdW1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyOTQzOTQsImV4cCI6MjA5NTg3MDM5NH0.n5xV4roCx3lFv28jvAjMjGtA1ZstWcCATx_Jl08Jn5Y';
 // =====================================================
 
 const MOIS = ['JANVIER','FÉVRIER','MARS','AVRIL','MAI','JUIN',
@@ -625,7 +625,7 @@ function initEmailJS() {
   } catch(e) { console.warn('EmailJS init error:', e); }
 }
 
-async function sendEmailNotif(mois, zone, resume) {
+async function sendEmailNotif(mois, zone, resume, pdfLink) {
   // Prepare message
   const sujet  = 'Palmeraie Dimako — Rapport ' + zone + ' ' + mois + ' ' + ANNEE;
   const corps  = [
@@ -636,7 +636,10 @@ async function sendEmailNotif(mois, zone, resume) {
     'Zone      : ' + zone,
     'Mois      : ' + mois + ' ' + ANNEE,
     'Saisi par : ' + cUser,
-    'Résumé    : ' + resume,
+    '',
+    pdfLink
+      ? '📄 TÉLÉCHARGER LE PDF : ' + pdfLink
+      : '(PDF disponible localement)',
     '',
     'Connectez-vous sur le site pour consulter le détail complet.',
     '',
@@ -648,12 +651,13 @@ async function sendEmailNotif(mois, zone, resume) {
   if (typeof emailjs !== 'undefined' && !EMAILJS_PUBLIC_KEY.includes('VOTRE')) {
     try {
       await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_email: EMAIL_DEST,
-        subject:  sujet,
-        message:  corps,
-        from_name:'Palmeraie Dimako',
+        to_email:  EMAIL_DEST,
+        subject:   sujet,
+        message:   corps,
+        from_name: 'Palmeraie Dimako',
         saisi_par: cUser,
         zone_mois: zone + ' — ' + mois + ' ' + ANNEE,
+        pdf_link:  pdfLink || 'Non disponible',
       });
       toast('📧 Email envoyé à ' + EMAIL_DEST + ' ✓');
     } catch(e) {
@@ -662,6 +666,35 @@ async function sendEmailNotif(mois, zone, resume) {
     }
   } else {
     console.info('EmailJS non configuré — email non envoyé');
+  }
+}
+
+// ===== UPLOAD PDF VERS SUPABASE STORAGE =====
+async function uploadPDFToStorage(doc, filename) {
+  if (!dbOK) return null;
+  try {
+    // Get PDF as blob
+    const pdfBlob = doc.output('blob');
+
+    // Upload to Supabase Storage bucket 'pdfs-palmeraie'
+    const { data, error } = await sb.storage
+      .from('pdfs-palmeraie')
+      .upload(filename, pdfBlob, {
+        contentType: 'application/pdf',
+        upsert: true,
+      });
+
+    if (error) { console.warn('Storage upload error:', error); return null; }
+
+    // Get public URL
+    const { data: urlData } = sb.storage
+      .from('pdfs-palmeraie')
+      .getPublicUrl(filename);
+
+    return urlData?.publicUrl || null;
+  } catch(e) {
+    console.warn('Upload failed:', e);
+    return null;
   }
 }
 
@@ -1426,23 +1459,32 @@ function buildPDF(mois, zoneLabel, sections) {
 
 // ===== ENVOI NOTIFICATION =====
 async function envoyerNotification(mois, zone, filename, doc) {
-  // 1. Email automatique via EmailJS
-  sendEmailNotif(mois, zone, 'Fichier : ' + filename);
+  // 1. Upload PDF to Supabase Storage → get public link
+  let pdfLink = null;
+  try {
+    pdfLink = await uploadPDFToStorage(doc, filename);
+  } catch(e) { console.warn('Upload error:', e); }
 
-  // 2. WhatsApp via wa.me link (opens in new tab with pre-filled message)
+  const resume = pdfLink
+    ? 'Lien PDF : ' + pdfLink
+    : 'PDF généré localement (pas de lien disponible)';
+
+  // 2. Email automatique via EmailJS (avec lien PDF si disponible)
+  sendEmailNotif(mois, zone, resume, pdfLink);
+
+  // 3. WhatsApp
   const msgWA = encodeURIComponent(
     '🌴 *Palmeraie Dimako*\n' +
-    'Nouveau rapport généré\n' +
+    'Rapport ' + mois + ' ' + ANNEE + '\n' +
     'Zone : ' + zone + '\n' +
-    'Mois : ' + mois + ' ' + ANNEE + '\n' +
     'Saisi par : ' + cUser + '\n' +
-    'Fichier : ' + filename
+    (pdfLink ? '📄 PDF : ' + pdfLink : '📄 ' + filename)
   );
-  // Show modal with options
-  showNotifModal(mois, zone, filename, msgWA, doc);
+
+  showNotifModal(mois, zone, filename, msgWA, pdfLink);
 }
 
-function showNotifModal(mois, zone, filename, msgWA, doc) {
+function showNotifModal(mois, zone, filename, msgWA, pdfLink) {
   const existing = document.getElementById('notif-modal');
   if (existing) existing.remove();
   const modal = document.createElement('div');
@@ -1453,7 +1495,8 @@ function showNotifModal(mois, zone, filename, msgWA, doc) {
       <div style="text-align:center;font-size:2.4rem;margin-bottom:8px">📄</div>
       <h3 style="text-align:center;font-family:'Playfair Display',serif;color:#0D3B2E;margin-bottom:4px;font-size:1.2rem">PDF généré !</h3>
       <p style="text-align:center;font-size:.8rem;color:#6B7A65;margin-bottom:6px">${filename}</p>
-      <p style="text-align:center;font-size:.78rem;color:#27AE60;margin-bottom:18px;font-weight:600">📧 Email automatique envoyé à ${EMAIL_DEST}</p>
+      <p style="text-align:center;font-size:.78rem;color:#27AE60;margin-bottom:12px;font-weight:600">📧 Email envoyé à ${EMAIL_DEST}</p>
+      ${pdfLink ? '<a href="'+pdfLink+'" target="_blank" style="display:block;text-align:center;background:#E8F5EE;color:#0F6E56;border:1px solid #B7DDC8;border-radius:8px;padding:8px 14px;font-size:.82rem;font-weight:600;margin-bottom:12px;text-decoration:none">📄 Ouvrir le PDF en ligne</a>' : ''}
       <div style="display:flex;flex-direction:column;gap:10px">
         <a href="https://wa.me/${WHATSAPP_NUM}?text=${msgWA}" target="_blank"
           style="display:flex;align-items:center;gap:10px;background:#25D366;color:#fff;border-radius:10px;padding:12px 16px;text-decoration:none;font-weight:600;font-size:.9rem">
