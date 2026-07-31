@@ -381,8 +381,14 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
 
         <div class="fut-section" style="grid-column:1/-1">
           <div class="fut-section-title">Huile obtenue — choisissez le type et entrez la quantité</div>
+          <div class="fut-dyn-row" style="margin-bottom:2px">
+            <span class="fl2" style="margin:0">Type</span>
+            <span class="fl2" style="margin:0">Litres</span>
+            <span class="fl2" style="margin:0">Quantité</span>
+            <span></span>
+          </div>
           <div id="p-futs-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
-          <button class="badd" onclick="addFutRow()" style="margin-bottom:10px">+ Ajouter un type de fût</button>
+          <button class="badd" onclick="addFutRow()" style="margin-bottom:10px">+ Ajouter un type</button>
           <div class="fut-row">
             <div>
               <label class="fl2">Total huile obtenue (auto)</label>
@@ -880,9 +886,9 @@ function selMoisB(m) {
 }
 
 // ===== PROD CALCUL =====
-// Litres options 0.5 to 250
+// Litres options 1 to 250 (bidon commence à 1 litre)
 const LITRES_OPTS = [];
-for(let v=0.5;v<=250;v+=0.5) LITRES_OPTS.push(v);
+for(let v=1;v<=250;v+=1) LITRES_OPTS.push(v);
 
 function addFutRow(type='fut', litres=200, qty=0) {
   const list = $('p-futs-list');
@@ -898,7 +904,7 @@ function addFutRow(type='fut', litres=200, qty=0) {
     selType.appendChild(o);
   });
 
-  // Litres select (0.5 to 250)
+  // Litres select (1 to 250, bidon commence à 1L)
   const selL = document.createElement('select');
   selL.className = 'fi2';
   LITRES_OPTS.forEach(v=>{
@@ -910,8 +916,10 @@ function addFutRow(type='fut', litres=200, qty=0) {
 
   // Qty input
   const inpQty = document.createElement('input');
-  inpQty.type='number'; inpQty.className='fi2';
-  inpQty.placeholder='Quantité'; inpQty.min='0'; inpQty.value=qty||'';
+  inpQty.type='text'; inpQty.inputMode='decimal'; inpQty.className='fi2';
+  inpQty.placeholder='Quantité'; inpQty.autocomplete='off';
+  inpQty.style.color='var(--text)';
+  inpQty.value=qty||'';
 
   // Label auto
   const lbl = document.createElement('span');
@@ -931,7 +939,12 @@ function addFutRow(type='fut', litres=200, qty=0) {
   }
   selType.onchange = syncType;
   selL.onchange    = ()=>calcProd();
-  inpQty.oninput   = ()=>calcProd();
+  inpQty.oninput   = ()=>{
+    // Autorise chiffres + virgule/point décimal, remplace la virgule par un point
+    let v = inpQty.value.replace(/[^0-9.,]/g,'').replace(',', '.');
+    if (v !== inpQty.value) inpQty.value = v;
+    calcProd();
+  };
 
   row.appendChild(selType);
   row.appendChild(selL);
