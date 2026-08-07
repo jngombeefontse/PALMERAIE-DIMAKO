@@ -290,16 +290,18 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
         <button class="zb" onclick="selectZone('production')" id="z-production">
           <span class="zi">🌴</span><span class="zn">Zone production</span>
         </button>
-        <button class="zb" onclick="selectZone('dimako')" id="z-dimako">
-          <span class="zi">🛒</span><span class="zn">Boutique Dimako</span>
-        </button>
-        <button class="zb" onclick="selectZone('bertoua')" id="z-bertoua">
-          <span class="zi">🏪</span><span class="zn">Boutique Bertoua</span>
+        <button class="zb" onclick="selectZone('vente')" id="z-vente">
+          <span class="zi">🛒</span><span class="zn">Zone de vente</span>
         </button>
         <button class="zb" onclick="selectZone('notes')" id="z-notes">
           <span class="zi">📓</span><span class="zn">Bloc-notes</span>
         </button>
       </div>
+    </div>
+    <div class="fg" id="villeGroup" style="display:none">
+      <label class="fl">Votre ville</label>
+      <input type="text" id="inputVille" class="fi" placeholder="Entrez votre ville..."
+        autocomplete="off" onkeydown="if(event.key==='Enter')entrer()">
     </div>
     <div class="err-acc" id="accErr">Veuillez entrer votre nom et choisir une zone.</div>
     <button class="btn-go" onclick="entrer()">Accéder →</button>
@@ -559,8 +561,7 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
           <label class="note-date-lbl" style="display:block;margin-bottom:4px">Zone concernée</label>
           <select id="note-zone" class="fi2" style="width:200px">
             <option value="production">🌴 Zone de production</option>
-            <option value="dimako">🛒 Boutique Dimako</option>
-            <option value="bertoua">🏪 Boutique Bertoua</option>
+            <option value="vente">🛒 Zone de vente</option>
             <option value="general">📌 Général</option>
           </select>
         </div>
@@ -602,6 +603,8 @@ let sb       = null;
 let dbOK     = false;
 let cUser    = '';
 let cZone    = '';
+let cVille   = '';
+let cZoneKey = '';
 let cMoisP   = '';
 let cMoisB   = '';
 let DATA     = JSON.parse(localStorage.getItem('pdimako_v4')||'{}');
@@ -775,21 +778,30 @@ const fmt = n => {
 };
 
 // ===== ACCUEIL =====
+function slug(s) {
+  return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+
 function selectZone(z) {
   cZone = z;
   document.querySelectorAll('.zb').forEach(b => b.classList.remove('sel'));
   $('z-'+z).classList.add('sel');
+  $('villeGroup').style.display = (z === 'vente') ? 'block' : 'none';
 }
 
 async function entrer() {
-  const nom = $('inputNom').value.trim();
-  if (!nom || !cZone) { $('accErr').style.display='block'; return; }
+  const nom   = $('inputNom').value.trim();
+  const ville = $('inputVille').value.trim();
+  if (!nom || !cZone || (cZone === 'vente' && !ville)) { $('accErr').style.display='block'; return; }
   $('accErr').style.display = 'none';
-  cUser = nom;
+  cUser    = nom;
+  cVille   = ville;
+  cZoneKey = cZone === 'vente' ? 'vente_' + slug(ville) : cZone;
 
   $('uAv').textContent = nom.charAt(0).toUpperCase();
   $('uNm').textContent = nom;
-  const lbl = {production:'🌴 Zone de production',dimako:'🛒 Boutique Dimako',bertoua:'🏪 Boutique Bertoua',notes:'📓 Bloc-notes'};
+  const lbl = {production:'🌴 Zone de production',vente:'🛒 Zone de vente — '+ville,notes:'📓 Bloc-notes'};
   $('hZone').textContent = lbl[cZone];
 
   // Build nav tabs
@@ -799,19 +811,20 @@ async function entrer() {
     ? [['notes','📓 Bloc-notes']]
     : cZone === 'production'
       ? [['production','🌴 Production'],['notes','📓 Bloc-notes']]
-      : [['boutique',cZone==='dimako'?'🛒 Dimako':'🏪 Bertoua'],['notes','📓 Bloc-notes']];
+      : [['boutique','🛒 Vente'],['notes','📓 Bloc-notes']];
 
   pages.forEach(([id,lbl],i) => {
     const t = document.createElement('div');
     t.className = 'tab' + (i===0?' active':'');
     t.textContent = lbl;
+    t.dataset.pgid = id;
     t.onclick = () => showPage(id);
     tabs.appendChild(t);
   });
 
   // Boutique title
-  if (cZone === 'dimako' || cZone === 'bertoua') {
-    $('bout-title').textContent = cZone==='dimako'?'Boutique Dimako':'Boutique Bertoua';
+  if (cZone === 'vente') {
+    $('bout-title').textContent = 'Zone de vente — ' + ville;
   }
 
   // Build mois bars
@@ -837,8 +850,10 @@ async function entrer() {
 }
 
 function deconnecter() {
-  cUser=''; cZone=''; cMoisP=''; cMoisB='';
+  cUser=''; cZone=''; cVille=''; cZoneKey=''; cMoisP=''; cMoisB='';
   $('inputNom').value='';
+  $('inputVille').value='';
+  $('villeGroup').style.display='none';
   document.querySelectorAll('.zb').forEach(b=>b.classList.remove('sel'));
   $('screen-app').classList.remove('active');
   $('screen-accueil').classList.add('active');
@@ -862,8 +877,7 @@ function showPage(pg) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   $('pg-'+pg)?.classList.add('active');
   document.querySelectorAll('.tab').forEach(t => {
-    if (t.textContent.toLowerCase().includes(pg==='production'?'prod':pg==='boutique'?(cZone==='dimako'?'dimako':'bertoua'):pg))
-      t.classList.add('active');
+    if (t.dataset.pgid === pg) t.classList.add('active');
   });
 }
 
@@ -871,7 +885,7 @@ function showPage(pg) {
 function selMoisP(m) {
   cMoisP = m;
   document.querySelectorAll('#moisBarProd .mois-chip').forEach(c=>c.classList.toggle('sel',c.title===m));
-  const d = (DATA[cZone]||{})[m]||{};
+  const d = (DATA[cZoneKey]||{})[m]||{};
   loadProd(d);
   calcProd();
 }
@@ -879,7 +893,7 @@ function selMoisP(m) {
 function selMoisB(m) {
   cMoisB = m;
   document.querySelectorAll('#moisBarBout .mois-chip').forEach(c=>c.classList.toggle('sel',c.title===m));
-  const d = (DATA[cZone]||{})[m]||{};
+  const d = (DATA[cZoneKey]||{})[m]||{};
   loadBout(d);
   $('bilanBox').style.display = 'grid';
   calcBout();
@@ -1171,7 +1185,7 @@ async function save(pg) {
   if (pg==='production') {
     if (!cMoisP) { toast('Sélectionnez un mois ❗'); return; }
     mois = cMoisP;
-    const zone = cZone;
+    const zone = cZoneKey;
     const futsData = getFuts();
     row = { annee:ANNEE, mois, zone,
       date_debut:$('p-date-debut').value, date_fin:$('p-date-fin').value,
@@ -1185,14 +1199,14 @@ async function save(pg) {
   } else {
     if (!cMoisB) { toast('Sélectionnez un mois ❗'); return; }
     mois = cMoisB;
-    const zone = cZone;
-    row = { annee:ANNEE, mois, zone,
+    const zone = cZoneKey;
+    row = { annee:ANNEE, mois, zone, ville:cVille,
       recup_l:fv('b-recup-l'), sortie:fv('b-sortie'), retour:fv('b-retour'),
       recettes:JSON.stringify(getRecs()), recouvrir:JSON.stringify(getCreds()),
       depenses:JSON.stringify(getDeps('b'))
     };
     if (!DATA[zone]) DATA[zone]={};
-    DATA[zone][mois] = {...row, recettes:getRecs(), recouvrir:getCreds(), depenses:getDeps('b')};
+    DATA[zone][mois] = {...row, ville:cVille, recettes:getRecs(), recouvrir:getCreds(), depenses:getDeps('b')};
   }
   await dbSave('saisies', row);
   const badge=$('svd-'+pg);
@@ -1245,7 +1259,7 @@ function renderNotes() {
     list.innerHTML='<div class="notes-empty">Aucune note pour l\'instant.<br>Commencez à rédiger vos notes journalières.</div>';
     return;
   }
-  const zoneIcons={production:'🌴',dimako:'🛒',bertoua:'🏪',general:'📌'};
+  const zoneIcons={production:'🌴',vente:'🛒',general:'📌'};
   list.innerHTML = NOTES.map(n=>`
     <div class="note-item">
       <div class="note-item-header">
@@ -1286,7 +1300,7 @@ function genRapportNotes() {
 function genPDF(pg) {
   if (pg==='production') {
     const mois = cMoisP; if (!mois) { toast('Sélectionnez un mois ❗'); return; }
-    const d    = (DATA[cZone]||{})[mois]||{};
+    const d    = (DATA[cZoneKey]||{})[mois]||{};
     const futs = d.futs||[];
     const total = futs.reduce((s,f)=>s+f.litres*f.qty,0);
     const bids  = Math.floor(total/LPB);
@@ -1323,7 +1337,7 @@ function genPDF(pg) {
     sendEmailNotif(mois, 'Zone de production', fmt(totDep)+' FCFA');
   } else {
     const mois = cMoisB; if (!mois) { toast('Sélectionnez un mois ❗'); return; }
-    const d    = (DATA[cZone]||{})[mois]||{};
+    const d    = (DATA[cZoneKey]||{})[mois]||{};
     const recs = d.recettes||[], creds=d.recouvrir||[], deps=d.depenses||[];
     const totRec  = recs.reduce((s,r)=>s+(+r.prix||0)*(+r.qte||0),0);
     const totBid  = recs.reduce((s,r)=>s+(+r.qte||0),0);
@@ -1334,7 +1348,7 @@ function genPDF(pg) {
     const sortie  = +d.sortie||0;
     const stocks  = Math.max(0, recupL/LPB - sortie - totBid - (+d.retour||0));
 
-    buildPDF(mois, cZone==='dimako'?'Boutique Dimako':'Boutique Bertoua',[
+    buildPDF(mois, 'Zone de vente — '+cVille,[
       {title:'🫙 Stock & Mouvements', rows:[
         ['Huile récupérée',   fmt(recupL)+' L = '+(recupL/LPB).toFixed(1)+' bidons'],
         ['Huile sortie',      sortie+' bidons = '+fmt(sortie*LPB)+' L'],
@@ -1464,7 +1478,7 @@ function buildPDF(mois, zoneLabel, sections) {
   doc.setTextColor(120,130,120);
   doc.text('Document confidentiel', W-M, 291, {align:'right'});
 
-  const filename = 'Palmeraie_'+cZone+'_'+mois+'_'+ANNEE+'.pdf';
+  const filename = 'Palmeraie_'+cZoneKey+'_'+mois+'_'+ANNEE+'.pdf';
   doc.save(filename);
   toast('📄 PDF généré — envoi en cours...');
   envoyerNotification(mois, zoneLabel, filename, doc);
@@ -1552,7 +1566,7 @@ function genNotePDF(mois, notes) {
   doc.text('RAPPORT NOTES — '+mois+' '+ANNEE+' ('+notes.length+' notes)', M+5, y+9);
   y+=20;
 
-  const zIcons={production:'[PROD]',dimako:'[DIMAKO]',bertoua:'[BERTOUA]',general:'[GENERAL]'};
+  const zIcons={production:'[PROD]',vente:'[VENTE]',general:'[GENERAL]'};
   notes.forEach(n=>{
     if (y>255) { doc.addPage(); y=18; }
     doc.setFillColor(...GR); doc.rect(M,y,W-M*2,8,'F');
