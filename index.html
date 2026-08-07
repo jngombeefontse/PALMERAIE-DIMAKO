@@ -462,16 +462,29 @@ body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);m
 
     <div class="fc">
       <div class="fct"><span>🫙</span> Stock & Mouvements</div>
+      <div class="fut-section" style="margin-bottom:16px">
+        <div class="fut-section-title">Huile récupérée — choisissez le type et entrez la quantité</div>
+        <div class="fut-dyn-row" style="margin-bottom:2px">
+          <span class="fl2" style="margin:0">Type</span>
+          <span class="fl2" style="margin:0">Litres</span>
+          <span class="fl2" style="margin:0">Quantité</span>
+          <span></span>
+        </div>
+        <div id="b-recup-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px"></div>
+        <button class="badd" onclick="addFutRow('b-recup-list', calcBout)" style="margin-bottom:10px">+ Ajouter un type</button>
+        <div class="fut-row">
+          <div>
+            <label class="fl2">Total huile récupérée (auto)</label>
+            <div class="iuw"><input type="number" class="fi2 ro" id="b-recup-l" placeholder="0" readonly><span class="ub">litres</span></div>
+          </div>
+          <div>
+            <label class="fl2">Équivalent bidons (auto)</label>
+            <div class="iuw"><input type="number" class="fi2 ro" id="b-recup-bid" placeholder="0" readonly><span class="ub">bidons</span></div>
+            <span class="conv" id="b-recup-bid-c">= 0 bidons</span>
+          </div>
+        </div>
+      </div>
       <div class="fg2">
-        <div>
-          <label class="fl2">Huile récupérée</label>
-          <div class="iuw"><input type="number" class="fi2" id="b-recup-l" placeholder="0" min="0" oninput="calcBout()"><span class="ub">litres</span></div>
-          <span class="conv" id="b-recup-bid-c">= 0 bidons</span>
-        </div>
-        <div>
-          <label class="fl2">Huile récupérée (auto)</label>
-          <div class="iuw"><input type="number" class="fi2 ro" id="b-recup-bid" placeholder="0" readonly><span class="ub">bidons</span></div>
-        </div>
         <div>
           <label class="fl2">Huile sortie</label>
           <div class="iuw"><input type="number" class="fi2" id="b-sortie" placeholder="0" min="0" oninput="calcBout()"><span class="ub">bidons</span></div>
@@ -904,8 +917,8 @@ function selMoisB(m) {
 const LITRES_OPTS = [];
 for(let v=1;v<=250;v+=1) LITRES_OPTS.push(v);
 
-function addFutRow(type='fut', litres=200, qty=0) {
-  const list = $('p-futs-list');
+function addFutRow(listId='p-futs-list', calcFn=calcProd, type='fut', litres=200, qty=0) {
+  const list = $(listId);
   const row  = document.createElement('div');
   row.className = 'fut-dyn-row';
 
@@ -942,22 +955,22 @@ function addFutRow(type='fut', litres=200, qty=0) {
   // Remove btn
   const rm = document.createElement('button');
   rm.className='brm'; rm.textContent='×';
-  rm.onclick=()=>{row.remove();calcProd();};
+  rm.onclick=()=>{row.remove();calcFn();};
 
   // Update label & auto-set default litres based on type (user can still change)
   function syncType() {
     const t = selType.value;
     if(t==='fut')        { selL.value='200'; }
     else if(t==='bidon') { selL.value='21'; }
-    calcProd();
+    calcFn();
   }
   selType.onchange = syncType;
-  selL.onchange    = ()=>calcProd();
+  selL.onchange    = ()=>calcFn();
   inpQty.oninput   = ()=>{
     // Autorise chiffres + virgule/point décimal, remplace la virgule par un point
     let v = inpQty.value.replace(/[^0-9.,]/g,'').replace(',', '.');
     if (v !== inpQty.value) inpQty.value = v;
-    calcProd();
+    calcFn();
   };
 
   row.appendChild(selType);
@@ -965,11 +978,11 @@ function addFutRow(type='fut', litres=200, qty=0) {
   row.appendChild(inpQty);
   row.appendChild(rm);
   list.appendChild(row);
-  calcProd();
+  calcFn();
 }
 
-function getFuts() {
-  const rows = document.querySelectorAll('#p-futs-list .fut-dyn-row');
+function getFuts(listId='p-futs-list') {
+  const rows = document.querySelectorAll('#'+listId+' .fut-dyn-row');
   return [...rows].map(r=>{
     const sels = r.querySelectorAll('select');
     const qty  = parseFloat(r.querySelector('input').value)||0;
@@ -988,7 +1001,9 @@ function calcProd() {
 
 // ===== BOUT CALCUL =====
 function calcBout() {
-  const recupL  = fv('b-recup-l');
+  const recupFuts = getFuts('b-recup-list');
+  const recupL  = recupFuts.reduce((s,f)=>s+f.litres*f.qty,0);
+  $('b-recup-l').value = recupL;
   const recupBid= recupL/LPB;
   $('b-recup-bid').value = recupBid.toFixed(2);
   $('b-recup-bid-c').textContent = `= ${recupBid.toFixed(1)} bidons`;
@@ -1163,15 +1178,20 @@ function loadProd(d) {
   // Load dynamic fût rows
   $('p-futs-list').innerHTML='';
   if (d.futs && d.futs.length) {
-    d.futs.forEach(f=>addFutRow(f.type, f.litres, f.qty));
+    d.futs.forEach(f=>addFutRow('p-futs-list', calcProd, f.type, f.litres, f.qty));
   } else {
-    addFutRow('fut',200,0);
+    addFutRow('p-futs-list', calcProd, 'fut',200,0);
   }
   loadDeps('p', d.depenses);
 }
 
 function loadBout(d) {
-  $('b-recup-l').value = d.recup_l||'';
+  $('b-recup-list').innerHTML='';
+  if (d.recup && d.recup.length) {
+    d.recup.forEach(f=>addFutRow('b-recup-list', calcBout, f.type, f.litres, f.qty));
+  } else {
+    addFutRow('b-recup-list', calcBout, 'fut',200,0);
+  }
   $('b-sortie').value  = d.sortie ||'';
   $('b-retour').value  = d.retour ||'';
   loadRecs(d.recettes);
@@ -1200,13 +1220,14 @@ async function save(pg) {
     if (!cMoisB) { toast('Sélectionnez un mois ❗'); return; }
     mois = cMoisB;
     const zone = cZoneKey;
+    const recupData = getFuts('b-recup-list');
     row = { annee:ANNEE, mois, zone, ville:cVille,
-      recup_l:fv('b-recup-l'), sortie:fv('b-sortie'), retour:fv('b-retour'),
+      recup:JSON.stringify(recupData), recup_l:fv('b-recup-l'), sortie:fv('b-sortie'), retour:fv('b-retour'),
       recettes:JSON.stringify(getRecs()), recouvrir:JSON.stringify(getCreds()),
       depenses:JSON.stringify(getDeps('b'))
     };
     if (!DATA[zone]) DATA[zone]={};
-    DATA[zone][mois] = {...row, ville:cVille, recettes:getRecs(), recouvrir:getCreds(), depenses:getDeps('b')};
+    DATA[zone][mois] = {...row, ville:cVille, recup:recupData, recettes:getRecs(), recouvrir:getCreds(), depenses:getDeps('b')};
   }
   await dbSave('saisies', row);
   const badge=$('svd-'+pg);
@@ -1218,11 +1239,12 @@ function clearForm(pg) {
   if (pg==='production') {
     ['p-date-debut','p-date-fin','p-regimes','p-futs-noix','p-huile','p-huile-bid','p-dons','p-obs']
       .forEach(id=>{if($(id))$(id).value='';});
-    $('p-futs-list').innerHTML=''; addFutRow('fut',200,0);
+    $('p-futs-list').innerHTML=''; addFutRow('p-futs-list', calcProd, 'fut',200,0);
     $('p-dep-list').innerHTML=''; addDep('p');
     calcProd();
   } else {
-    ['b-recup-l','b-sortie','b-retour'].forEach(id=>{$(id).value='';});
+    $('b-recup-list').innerHTML=''; addFutRow('b-recup-list', calcBout, 'fut',200,0);
+    ['b-sortie','b-retour'].forEach(id=>{$(id).value='';});
     $('b-rec-list').innerHTML='';   addRec();
     $('b-cred-list').innerHTML='';  addCred();
     $('b-dep-list').innerHTML='';   addDep('b');
@@ -1339,18 +1361,28 @@ function genPDF(pg) {
     const mois = cMoisB; if (!mois) { toast('Sélectionnez un mois ❗'); return; }
     const d    = (DATA[cZoneKey]||{})[mois]||{};
     const recs = d.recettes||[], creds=d.recouvrir||[], deps=d.depenses||[];
+    const recup = d.recup||[];
     const totRec  = recs.reduce((s,r)=>s+(+r.prix||0)*(+r.qte||0),0);
     const totBid  = recs.reduce((s,r)=>s+(+r.qte||0),0);
     const totCred = creds.reduce((s,c)=>s+(+c.montant||0),0);
     const totDep  = deps.reduce((s,x)=>s+(+x.montant||0),0);
     const caisse  = totRec - totDep - totCred;
-    const recupL  = +d.recup_l||0;
+    const recupL  = recup.length ? recup.reduce((s,f)=>s+(+f.litres||0)*(+f.qty||0),0) : (+d.recup_l||0);
     const sortie  = +d.sortie||0;
     const stocks  = Math.max(0, recupL/LPB - sortie - totBid - (+d.retour||0));
+
+    // PDF rows for récup type (fût/bidon) — merge by type, comme en zone de production
+    const totalFutsRecup   = recup.filter(f=>f.type==='fut').reduce((s,f)=>s+f.qty,0);
+    const totalBidonsRecup = recup.filter(f=>f.type==='bidon').reduce((s,f)=>s+f.qty,0);
+    const recupRows = [
+      ...(totalFutsRecup>0   ? [['Fûts récupérés',   fmt(totalFutsRecup)+' fûts']]   : []),
+      ...(totalBidonsRecup>0 ? [['Bidons récupérés', fmt(totalBidonsRecup)+' bidons']] : []),
+    ];
 
     buildPDF(mois, 'Zone de vente — '+cVille,[
       {title:'🫙 Stock & Mouvements', rows:[
         ['Huile récupérée',   fmt(recupL)+' L = '+(recupL/LPB).toFixed(1)+' bidons'],
+        ...recupRows,
         ['Huile sortie',      sortie+' bidons = '+fmt(sortie*LPB)+' L'],
         ['Huile vendue',      fmt(totBid)+' bidons = '+fmt(totBid*LPB)+' L'],
         ['Retour mauvaise',   (+d.retour||0)>0?(+d.retour)+' bidons':'—'],
